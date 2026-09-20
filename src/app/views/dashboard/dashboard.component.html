@@ -1,0 +1,170 @@
+<div class="ff-toolbar">
+  <h2 class="h4 mb-0 fw-bold">{{ 'nav.dashboard' | t }}</h2>
+  <div class="d-flex gap-2 flex-wrap align-items-center">
+    <label class="small mb-0 text-body-secondary" for="ff-month">{{ 'dashboard.month' | t }}</label>
+    <select id="ff-month" class="form-select form-select-sm" style="width:120px" (change)="month.set(+$any($event.target).value); load()">
+      @for (m of monthOptions(); track m.value) {
+        <option [value]="m.value" [selected]="month() === m.value">{{ m.label }}</option>
+      }
+    </select>
+    <label class="small mb-0 text-body-secondary" for="ff-year">{{ 'dashboard.year' | t }}</label>
+    <input id="ff-year" class="form-control form-control-sm" style="width:88px" type="number" [value]="year()" (change)="year.set(+$any($event.target).value); load()" />
+    @if (showAddBranch) {
+      <button cButton color="primary" size="sm" (click)="openAdd()">{{ 'dashboard.addBranch' | t }}</button>
+    }
+    @if (showViewBranch) {
+      <a cButton color="secondary" variant="outline" size="sm" [routerLink]="viewBranchLink">{{ 'dashboard.viewBranch' | t }}</a>
+    }
+  </div>
+</div>
+
+@if (error()) {
+  <div class="text-danger mb-2">{{ error() }}</div>
+}
+
+@if (stats(); as s) {
+  <c-row class="g-4 mb-4 ff-kpi-row">
+    <c-col sm="6" xl class="d-flex">
+      <c-widget-stat-a class="ff-kpi w-100" color="primary" [title]="'dashboard.activeMembers' | t" [value]="'' + (s['activeStudents'] ?? s['activeMembers'])">
+        <ng-template cTemplateId="widgetActionTemplate">
+          <svg cIcon name="cilPeople" size="xl"></svg>
+        </ng-template>
+      </c-widget-stat-a>
+    </c-col>
+    <c-col sm="6" xl class="d-flex">
+      <c-widget-stat-a class="ff-kpi w-100" color="info" [title]="'dashboard.staff' | t" [value]="'' + (s['teachersAndStaff'] ?? s['trainersAndStaff'])">
+        <ng-template cTemplateId="widgetActionTemplate">
+          <svg cIcon name="cilUserFollow" size="xl"></svg>
+        </ng-template>
+      </c-widget-stat-a>
+    </c-col>
+    <c-col sm="6" xl class="d-flex">
+      <c-widget-stat-a class="ff-kpi w-100" color="success" [title]="'dashboard.income' | t" [value]="s['incomeThisMonth'] | inr">
+        <ng-template cTemplateId="widgetActionTemplate">
+          <svg cIcon name="cilDollar" size="xl"></svg>
+        </ng-template>
+      </c-widget-stat-a>
+    </c-col>
+    <c-col sm="6" xl class="d-flex">
+      <c-widget-stat-a class="ff-kpi w-100" color="danger" [title]="'dashboard.expenses' | t" [value]="s['expensesThisMonth'] | inr">
+        <ng-template cTemplateId="widgetActionTemplate">
+          <svg cIcon name="cilCalculator" size="xl"></svg>
+        </ng-template>
+      </c-widget-stat-a>
+    </c-col>
+    <c-col sm="6" xl class="d-flex">
+      <c-widget-stat-a class="ff-kpi w-100" color="warning" [title]="'dashboard.pending' | t" [value]="'' + s['pendingPayments']">
+        <ng-template cTemplateId="widgetActionTemplate">
+          <svg cIcon name="cilBell" size="xl"></svg>
+        </ng-template>
+      </c-widget-stat-a>
+    </c-col>
+  </c-row>
+
+  <c-row class="g-3 mb-3 ff-chart-row">
+    <c-col xs="12" md="6">
+      <c-card class="h-100">
+        <c-card-header class="bg-body-tertiary py-2">
+          <h3 class="h6 mb-0">{{ 'dashboard.revenue' | t }} · {{ year() }}</h3>
+        </c-card-header>
+        <c-card-body>
+          <div class="ff-chart-box">
+            <c-chart [data]="$any(chart())" type="bar" [options]="$any(barOptions)" />
+          </div>
+        </c-card-body>
+      </c-card>
+    </c-col>
+    <c-col xs="12" md="6">
+      <c-card class="h-100">
+        <c-card-header class="bg-body-tertiary py-2">
+          <h3 class="h6 mb-0">{{ 'dashboard.membersJoined' | t }} · {{ year() }}</h3>
+        </c-card-header>
+        <c-card-body>
+          <div class="ff-chart-box">
+            <c-chart [data]="$any(membersJoinedChart())" type="line" [options]="$any(lineOptions)" />
+          </div>
+        </c-card-body>
+      </c-card>
+    </c-col>
+    <c-col xs="12" md="6">
+      <c-card class="h-100">
+        <c-card-header class="bg-body-tertiary py-2"><h3 class="h6 mb-0">{{ 'dashboard.paymentMix' | t }}</h3></c-card-header>
+        <c-card-body>
+          <div class="ff-chart-box">
+            <c-chart type="doughnut" [data]="$any(paymentMixChart())" [options]="$any(doughnutOptions)" />
+          </div>
+        </c-card-body>
+      </c-card>
+    </c-col>
+    <c-col xs="12" md="6">
+      <c-card class="h-100">
+        <c-card-header class="bg-body-tertiary py-2"><h3 class="h6 mb-0">{{ 'dashboard.shiftMix' | t }}</h3></c-card-header>
+        <c-card-body>
+          <div class="ff-chart-box">
+            <c-chart type="doughnut" [data]="$any(shiftChart())" [options]="$any(doughnutOptions)" />
+          </div>
+        </c-card-body>
+      </c-card>
+    </c-col>
+    @if (showBranchChart) {
+      <c-col xs="12" md="6">
+        <c-card class="h-100">
+          <c-card-header class="bg-body-tertiary py-2"><h3 class="h6 mb-0">{{ 'dashboard.branchCompare' | t }}</h3></c-card-header>
+          <c-card-body>
+            <div class="ff-chart-box">
+              <c-chart type="bar" [data]="$any(branchChart())" [options]="$any(barOptions)" />
+            </div>
+          </c-card-body>
+        </c-card>
+      </c-col>
+      <c-col xs="12" md="6">
+        <c-card class="h-100">
+          <c-card-header class="bg-body-tertiary py-2"><h3 class="h6 mb-0">{{ 'dashboard.branchMembers' | t }}</h3></c-card-header>
+          <c-card-body>
+            <div class="ff-chart-box">
+              <c-chart type="bar" [data]="$any(branchMembersChart())" [options]="$any(barOptions)" />
+            </div>
+          </c-card-body>
+        </c-card>
+      </c-col>
+    }
+  </c-row>
+}
+
+<c-modal [visible]="branchModal()" [backdrop]="'static'" [keyboard]="!photos.blocking()" (visibleChange)="onBranchVisible($event)" alignment="center" size="lg">
+  <c-modal-header>
+    <h5 cModalTitle>{{ 'dashboard.addBranch' | t }}</h5>
+    <app-modal-close (closed)="onBranchVisible(false)" />
+  </c-modal-header>
+  <c-modal-body>
+    <form [formGroup]="branchForm" cForm (submit)="$event.preventDefault()">
+      <app-photo-upload persistKey="branch-logo" [label]="'branch.logo' | t" [fileId]="logoId()" (picking)="stashPhotoForm()" (uploaded)="logoId.set($event.id)" />
+      <label cLabel>{{ 'branch.name' | t }}</label>
+      <input cFormControl formControlName="name" class="mb-2" />
+      <label cLabel>{{ 'branch.owner' | t }}</label>
+      <input cFormControl formControlName="ownerName" class="mb-2" />
+      <label cLabel>{{ 'branch.address' | t }}</label>
+      <input cFormControl formControlName="address" class="mb-2" />
+      <label cLabel>{{ 'branch.phone' | t }}</label>
+      <input cFormControl formControlName="phone" class="mb-2" />
+      <label cLabel>{{ 'branch.details' | t }}</label>
+      <textarea cFormControl formControlName="details" rows="2" class="mb-2"></textarea>
+      <hr />
+      <h6>{{ 'branch.manager' | t }}</h6>
+      <c-row class="g-2">
+        <c-col md="6"><input cFormControl formControlName="managerFirstName" placeholder="First name" /></c-col>
+        <c-col md="6"><input cFormControl formControlName="managerLastName" placeholder="Last name" /></c-col>
+        <c-col md="6"><input cFormControl formControlName="managerEmail" placeholder="Email" /></c-col>
+        <c-col md="6"><input cFormControl formControlName="managerPhone" placeholder="Phone" /></c-col>
+        <c-col md="12">
+          <app-password-input formControlName="managerPassword" autocomplete="new-password" placeholder="Password" />
+        </c-col>
+      </c-row>
+      <app-photo-upload persistKey="branch-photos" class="mt-3" [label]="'branch.photos' | t" (picking)="stashPhotoForm()" (uploaded)="photoIds.update(ids => ids.length < 3 ? [...ids, $event.id] : ids)" />
+    </form>
+  </c-modal-body>
+  <c-modal-footer>
+    <button cButton color="secondary" type="button" (click)="onBranchVisible(false)">{{ 'common.cancel' | t }}</button>
+    <button cButton color="primary" type="button" (click)="saveBranch()">{{ 'common.save' | t }}</button>
+  </c-modal-footer>
+</c-modal>

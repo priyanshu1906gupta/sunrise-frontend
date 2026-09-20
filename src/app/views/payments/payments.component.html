@@ -1,0 +1,104 @@
+<div class="ff-toolbar align-items-start">
+  <div>
+    <h2 class="h4 mb-0">{{ 'nav.payments' | t }}</h2>
+    @if (branchName) {
+      <div class="small text-body-secondary">{{ branchName }}</div>
+    }
+  </div>
+</div>
+@if (error()) { <div class="text-danger mb-2">{{ error() }}</div> }
+<c-card class="mb-3 ff-filters"><c-card-body class="d-flex flex-wrap gap-2">
+  <div class="input-group" style="max-width:280px">
+    <span class="input-group-text"><svg cIcon name="cilMagnifyingGlass"></svg></span>
+    <input class="form-control" [value]="search()" (input)="search.set($any($event.target).value)" (keyup.enter)="runSearch()" placeholder="{{ 'common.searchHint' | t }}" />
+  </div>
+  <button cButton color="primary" (click)="runSearch()">{{ 'common.search' | t }}</button>
+</c-card-body></c-card>
+
+@if (list(); as data) {
+  @if (!data.items.length) { <app-empty /> } @else {
+    <c-card>
+    <div class="table-responsive">
+      <table cTable hover>
+        <thead><tr><th>{{ 'common.photo' | t }}</th><th>{{ 'common.name' | t }}</th><th>{{ 'members.monthEnd' | t }}</th><th>{{ 'payments.days' | t }}</th><th>{{ 'payments.due' | t }}</th><th></th></tr></thead>
+        <tbody>
+          @for (m of data.items; track m['id']) {
+            <tr>
+              <td><img [src]="m['photoUrl'] || 'assets/brand/logo.png'" appFallbackSrc class="ff-avatar" alt="" /></td>
+              <td>{{ m['fullName'] }}</td>
+              <td>{{ m['monthEndDate'] | date:'dd MMM yyyy' }}</td>
+              <td>{{ m['daysLeft'] }}</td>
+              <td>{{ m['dueAmount'] | inr }}</td>
+              <td><button cButton color="primary" size="sm" (click)="openPay(m)" [disabled]="!auth.canWrite()">{{ 'payments.add' | t }}</button></td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    </c-card>
+    <app-pager [page]="data.page" [totalPages]="data.totalPages" (changed)="load($event)" />
+  }
+}
+
+<c-modal [visible]="payOpen()" (visibleChange)="payOpen.set($event)" alignment="center">
+  <c-modal-header>
+    <h5 cModalTitle>{{ 'payments.add' | t }}</h5>
+    <app-modal-close (closed)="payOpen.set(false)" />
+  </c-modal-header>
+  <c-modal-body>
+    @if (current(); as c) {
+      <div class="d-flex gap-3 mb-3 align-items-start">
+        <img [src]="c['photoUrl'] || 'assets/brand/logo.png'" appFallbackSrc class="ff-detail-photo border" alt="" />
+        <div class="ff-detail-grid flex-grow-1">
+          <div class="lbl">{{ 'common.name' | t }}</div><div class="fw-semibold">{{ c['fullName'] }}</div>
+          <div class="lbl">{{ 'members.joining' | t }}</div><div>{{ c['joiningDate'] | date:'dd MMM yyyy' }}</div>
+          <div class="lbl">{{ 'members.paymentDate' | t }}</div><div>{{ c['lastPaymentDate'] | date:'dd MMM yyyy' }}</div>
+          <div class="lbl">{{ 'payments.due' | t }}</div><div class="fw-semibold">{{ c['dueAmount'] | inr }}</div>
+        </div>
+      </div>
+    }
+    <form [formGroup]="form" cForm>
+      <label cLabel>{{ 'payments.paid' | t }} (₹)</label>
+      <input cFormControl type="number" formControlName="paidAmount" class="mb-2" />
+      <label cLabel>{{ 'members.paymentDate' | t }}</label>
+      <input cFormControl type="date" formControlName="paymentDate" class="mb-2" />
+      <label cLabel>{{ 'payments.mode' | t }}</label>
+      <select class="form-select" formControlName="paymentMode">
+        <option value="CASH">{{ 'payments.cash' | t }}</option>
+        <option value="ONLINE">{{ 'payments.online' | t }}</option>
+      </select>
+    </form>
+  </c-modal-body>
+  <c-modal-footer>
+    <button cButton color="secondary" (click)="payOpen.set(false)">{{ 'common.cancel' | t }}</button>
+    <button cButton color="primary" (click)="savePay()">{{ 'common.save' | t }}</button>
+  </c-modal-footer>
+</c-modal>
+
+<c-modal [visible]="!!receipt()" (visibleChange)="!$event && receipt.set(null)" alignment="center">
+  <c-modal-header>
+    <h5 cModalTitle>{{ 'payments.receipt' | t }}</h5>
+    <app-modal-close (closed)="receipt.set(null)" />
+  </c-modal-header>
+  <c-modal-body id="receipt-print">
+    @if (receipt(); as r) {
+      <div class="text-center mb-3">
+        <img src="assets/brand/logo.png" class="ff-brand-logo mb-2" alt="" />
+        <h5 class="mb-0">{{ 'app.name' | t }}</h5>
+        <div class="small text-body-secondary">{{ 'app.tagline' | t }}</div>
+      </div>
+      <div class="ff-detail-grid">
+        <div class="lbl">{{ 'payments.receipt' | t }}</div><div>{{ r['receiptId'] }}</div>
+        <div class="lbl">{{ 'common.name' | t }}</div><div>{{ r['memberName'] }}</div>
+        <div class="lbl">{{ 'common.branch' | t }}</div><div>{{ r['branchName'] }}</div>
+        <div class="lbl">{{ 'payments.paid' | t }}</div><div class="fw-semibold">{{ r['paidAmount'] | inr }}</div>
+        <div class="lbl">{{ 'payments.due' | t }}</div><div>{{ r['dueAmount'] | inr }}</div>
+        <div class="lbl">{{ 'members.paymentDate' | t }}</div><div>{{ r['paymentDate'] | date:'dd MMM yyyy' }}</div>
+        <div class="lbl">{{ 'payments.mode' | t }}</div><div>{{ r['paymentMode'] === 'ONLINE' ? ('payments.online' | t) : ('payments.cash' | t) }}</div>
+      </div>
+    }
+  </c-modal-body>
+  <c-modal-footer>
+    <button cButton color="primary" (click)="print()">{{ 'payments.print' | t }}</button>
+  </c-modal-footer>
+</c-modal>

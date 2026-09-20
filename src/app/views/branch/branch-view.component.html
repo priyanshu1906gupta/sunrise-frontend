@@ -1,0 +1,57 @@
+<div class="ff-toolbar">
+  <h2 class="h4 mb-0">{{ branch()?.['name'] }}</h2>
+  <button cButton color="primary" variant="ghost" class="ff-icon-btn" [attr.aria-label]="'common.edit' | t" (click)="openEdit()">
+    <svg cIcon name="cilPencil"></svg>
+  </button>
+</div>
+@if (error()) { <div class="text-danger">{{ error() }}</div> }
+@if (branch(); as b) {
+  <c-card>
+    <c-card-body>
+      <div class="d-flex gap-4 flex-wrap">
+        <img [src]="b['logoUrl'] || 'assets/brand/logo.png'" appFallbackSrc class="ff-logo-lg border" alt="" />
+        <div class="ff-detail-grid flex-grow-1">
+          <div class="lbl">{{ 'branch.owner' | t }}</div><div>{{ b['ownerName'] }}</div>
+          <div class="lbl">{{ 'branch.phone' | t }}</div><div>{{ b['phone'] || '—' }}</div>
+          <div class="lbl">{{ 'branch.address' | t }}</div><div>{{ b['address'] || '—' }}</div>
+          <div class="lbl">{{ 'branch.details' | t }}</div><div>{{ b['details'] || '—' }}</div>
+          @if (b['manager']) {
+            <div class="lbl">{{ 'branch.manager' | t }}</div>
+            <div>{{ $any(b['manager']).firstName }} {{ $any(b['manager']).lastName }}</div>
+          }
+        </div>
+      </div>
+      <div class="d-flex gap-2 flex-wrap mt-3">
+        @for (p of $any(b['photos']); track p.id) {
+          <img [src]="p.url" appFallbackSrc style="width:120px;height:90px;object-fit:cover" class="rounded" alt="" />
+        }
+      </div>
+    </c-card-body>
+  </c-card>
+}
+<c-modal [visible]="editOpen()" [backdrop]="'static'" [keyboard]="!photos.blocking()" (visibleChange)="onEditVisible($event)" size="lg" alignment="center">
+  <c-modal-header>
+    <h5 cModalTitle>{{ 'common.edit' | t }}</h5>
+    <app-modal-close (closed)="onEditVisible(false)" />
+  </c-modal-header>
+  <c-modal-body>
+    <form [formGroup]="form" cForm (submit)="$event.preventDefault()">
+        <app-photo-upload persistKey="branch-logo" [label]="'branch.logo' | t" [url]="$any(branch()?.['logoUrl'])" [fileId]="logoId()" (picking)="stashPhotoForm()" (uploaded)="logoId.set($event.id)" />
+      <label cLabel>{{ 'branch.name' | t }}</label>
+      <input cFormControl formControlName="name" class="mb-2" />
+      <label cLabel>{{ 'branch.owner' | t }}</label>
+      <input cFormControl formControlName="ownerName" class="mb-2" />
+      <label cLabel>{{ 'branch.address' | t }}</label>
+      <input cFormControl formControlName="address" class="mb-2" />
+      <label cLabel>{{ 'branch.phone' | t }}</label>
+      <input cFormControl formControlName="phone" class="mb-2" />
+      <label cLabel>{{ 'branch.details' | t }}</label>
+      <textarea cFormControl formControlName="details" rows="3"></textarea>
+      <app-photo-upload persistKey="branch-photos" class="mt-2" [label]="'branch.photos' | t" (picking)="stashPhotoForm()" (uploaded)="photoIds.update(ids => ids.length < 3 ? [...ids, $event.id] : ids)" />
+    </form>
+  </c-modal-body>
+  <c-modal-footer>
+    <button cButton color="secondary" type="button" (click)="onEditVisible(false)">{{ 'common.cancel' | t }}</button>
+    <button cButton color="primary" type="button" (click)="save()">{{ 'common.save' | t }}</button>
+  </c-modal-footer>
+</c-modal>

@@ -1,0 +1,53 @@
+<div class="ff-toolbar">
+  <h2 class="h4 mb-0">{{ 'nav.myPayments' | t }}</h2>
+</div>
+@if (error()) {
+  <div class="text-danger mb-2">{{ error() }}</div>
+}
+@if (student(); as s) {
+  <c-card class="mb-3 p-3">
+    <div class="d-flex flex-wrap gap-4">
+      <div>
+        <div class="small text-body-secondary">{{ 'members.amount' | t }}</div>
+        <div class="fw-semibold">{{ s.paymentAmount | inr }}</div>
+      </div>
+      <div>
+        <div class="small text-body-secondary">{{ 'members.paidAmount' | t }}</div>
+        <div class="fw-semibold">{{ s.paidAmount | inr }}</div>
+      </div>
+      <div>
+        <div class="small text-body-secondary">{{ 'members.paymentStatus' | t }}</div>
+        <c-badge [color]="s.paymentStatus === 'PAID' ? 'success' : 'danger'">{{ s.paymentStatus }}</c-badge>
+      </div>
+    </div>
+  </c-card>
+  @if (!payments().length) {
+    <app-empty />
+  } @else {
+    <c-card>
+      <div class="table-responsive">
+        <table cTable hover>
+          <thead>
+            <tr>
+              <th>{{ 'members.paymentDate' | t }}</th>
+              <th>{{ 'payments.paid' | t }}</th>
+              <th>{{ 'payments.mode' | t }}</th>
+              <th>{{ 'members.remainingAmount' | t }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (p of paged(); track p.id) {
+              <tr>
+                <td>{{ p.paymentDate | date:'dd MMM yyyy' }}</td>
+                <td>{{ p.amount | inr }}</td>
+                <td>{{ p.paymentMode === 'ONLINE' ? ('payments.online' | t) : ('payments.cash' | t) }}</td>
+                <td>{{ p.dueAmountAfter | inr }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </c-card>
+    <app-pager [page]="page()" [totalPages]="totalPages()" (changed)="page.set($event)" />
+  }
+}

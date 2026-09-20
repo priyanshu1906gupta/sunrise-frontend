@@ -1,0 +1,133 @@
+<div class="ff-toolbar">
+  <h2 class="h4 mb-0">{{ 'nav.courses' | t }}</h2>
+  @if (auth.canWrite()) {
+    <button cButton color="primary" (click)="openCourse()">{{ 'courses.add' | t }}</button>
+  }
+</div>
+@if (error()) {
+  <div class="text-danger mb-2">{{ error() }}</div>
+}
+
+@if (!courses().length) {
+  <app-empty />
+} @else {
+  <c-row class="g-3 mb-4">
+    @for (c of courses(); track c.id) {
+      <c-col sm="6" xl="4">
+        <c-card>
+          <c-card-body>
+            <div class="d-flex justify-content-between align-items-start gap-2">
+              <div>
+                <h3 class="h5 mb-1">{{ c.name }}</h3>
+                <div class="small text-body-secondary">{{ c.durationMonths }} {{ 'courses.duration' | t }} · {{ c.price | inr }}</div>
+              </div>
+              @if (auth.canWrite()) {
+                <div class="text-nowrap">
+                  <button cButton color="primary" variant="ghost" size="sm" class="ff-icon-btn" (click)="openCourse(c)">
+                    <svg cIcon name="cilPencil"></svg>
+                  </button>
+                  <button cButton color="danger" variant="ghost" size="sm" class="ff-icon-btn" (click)="removeCourse(c.id)">
+                    <svg cIcon name="cilTrash"></svg>
+                  </button>
+                </div>
+              }
+            </div>
+            @if (c.details) {
+              <p class="small mt-2 mb-1">{{ c.details }}</p>
+            }
+            <div class="small mt-2">{{ 'courses.subjects' | t }}: {{ subjectNames(c) }}</div>
+          </c-card-body>
+        </c-card>
+      </c-col>
+    }
+  </c-row>
+}
+
+<div class="d-flex justify-content-between align-items-center mb-2">
+  <h3 class="h5 mb-0">{{ 'courses.subjects' | t }}</h3>
+  @if (auth.canWrite()) {
+    <button cButton color="secondary" variant="outline" size="sm" (click)="openSubject()">{{ 'courses.addSubject' | t }}</button>
+  }
+</div>
+@if (!subjects().length) {
+  <p class="text-body-secondary">{{ 'common.noData' | t }}</p>
+} @else {
+  <c-card>
+    <div class="table-responsive">
+      <table cTable hover>
+        <thead>
+          <tr>
+            <th>{{ 'common.name' | t }}</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (s of subjects(); track s.id) {
+            <tr>
+              <td>{{ s.name }}</td>
+              <td class="text-nowrap">
+                @if (auth.canWrite()) {
+                  <button cButton color="primary" variant="ghost" size="sm" class="ff-icon-btn" (click)="openSubject(s)">
+                    <svg cIcon name="cilPencil"></svg>
+                  </button>
+                  <button cButton color="danger" variant="ghost" size="sm" class="ff-icon-btn" (click)="removeSubject(s.id)">
+                    <svg cIcon name="cilTrash"></svg>
+                  </button>
+                }
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </c-card>
+}
+
+<c-modal [visible]="courseOpen()" (visibleChange)="courseOpen.set($event)" alignment="center">
+  <c-modal-header>
+    <h5 cModalTitle>{{ editingCourseId() ? ('common.edit' | t) : ('courses.add' | t) }}</h5>
+    <app-modal-close (closed)="courseOpen.set(false)" />
+  </c-modal-header>
+  <c-modal-body>
+    <form [formGroup]="courseForm" cForm>
+      <label cLabel>{{ 'common.name' | t }}</label>
+      <input cFormControl formControlName="name" class="mb-2" />
+      <label cLabel>{{ 'courses.details' | t }}</label>
+      <textarea cFormControl formControlName="details" rows="3" class="mb-2"></textarea>
+      <label cLabel>{{ 'courses.duration' | t }}</label>
+      <input cFormControl type="number" formControlName="durationMonths" class="mb-2" />
+      <label cLabel>{{ 'courses.price' | t }} (₹)</label>
+      <input cFormControl type="number" formControlName="price" class="mb-2" />
+      <label cLabel>{{ 'courses.subjects' | t }}</label>
+      <div class="d-flex flex-wrap gap-2">
+        @for (s of subjects(); track s.id) {
+          <label class="form-check">
+            <input class="form-check-input" type="checkbox" [checked]="selectedSubjectIds().includes(s.id)" (change)="toggleSubject(s.id)" />
+            <span class="form-check-label">{{ s.name }}</span>
+          </label>
+        }
+      </div>
+    </form>
+  </c-modal-body>
+  <c-modal-footer>
+    <button cButton color="secondary" (click)="courseOpen.set(false)">{{ 'common.cancel' | t }}</button>
+    <button cButton color="primary" (click)="saveCourse()">{{ 'common.save' | t }}</button>
+  </c-modal-footer>
+</c-modal>
+
+<c-modal [visible]="subjectOpen()" (visibleChange)="subjectOpen.set($event)" alignment="center">
+  <c-modal-header>
+    <h5 cModalTitle>{{ editingSubjectId() ? ('common.edit' | t) : ('courses.addSubject' | t) }}</h5>
+    <app-modal-close (closed)="subjectOpen.set(false)" />
+  </c-modal-header>
+  <c-modal-body>
+    <form [formGroup]="subjectForm" cForm>
+      <label cLabel>{{ 'common.name' | t }}</label>
+      <input cFormControl formControlName="name" />
+    </form>
+  </c-modal-body>
+  <c-modal-footer>
+    <button cButton color="secondary" (click)="subjectOpen.set(false)">{{ 'common.cancel' | t }}</button>
+    <button cButton color="primary" (click)="saveSubject()">{{ 'common.save' | t }}</button>
+  </c-modal-footer>
+</c-modal>

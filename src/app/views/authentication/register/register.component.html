@@ -1,0 +1,51 @@
+<app-auth-shell [wide]="true">
+  <h2 class="ff-auth-title">{{ 'auth.register' | t }}</h2>
+  @if (error()) {
+    <div class="ff-auth-error">{{ error() }}</div>
+  }
+  <form [formGroup]="form" (ngSubmit)="submit()" cForm>
+    <c-row class="g-3">
+      <c-col md="6">
+        <label cLabel>{{ 'auth.firstName' | t }}</label>
+        <input cFormControl formControlName="firstName" />
+      </c-col>
+      <c-col md="6">
+        <label cLabel>{{ 'auth.lastName' | t }}</label>
+        <input cFormControl formControlName="lastName" />
+      </c-col>
+      <c-col md="6">
+        <label cLabel>{{ 'auth.email' | t }}</label>
+        <input cFormControl formControlName="email" type="email" />
+      </c-col>
+      <c-col md="6">
+        <label cLabel>{{ 'auth.mobile' | t }}</label>
+        <input cFormControl formControlName="phone" />
+      </c-col>
+      <c-col md="6">
+        <label cLabel>{{ 'auth.location' | t }}</label>
+        <input cFormControl formControlName="location" />
+      </c-col>
+      <c-col md="6">
+        <label cLabel>{{ 'auth.course' | t }}</label>
+        <select class="form-select" formControlName="courseId">
+          <option value="">{{ 'auth.course' | t }}</option>
+          @for (c of courses(); track c.id) {
+            <option [value]="c.id">{{ c.name }}</option>
+          }
+        </select>
+      </c-col>
+      <c-col xs="12">
+        <label cLabel>{{ 'auth.password' | t }}</label>
+        <app-password-input formControlName="password" autocomplete="new-password" />
+        <div class="form-text">{{ 'auth.passwordHint' | t }}</div>
+      </c-col>
+    </c-row>
+    <button cButton class="w-100 mt-3 ff-auth-submit" color="primary" type="submit">
+      {{ 'auth.createAccount' | t }}
+    </button>
+  </form>
+  <p class="ff-auth-footer">
+    {{ 'auth.haveAccount' | t }}
+    <a routerLink="/authentication/login">{{ 'auth.login' | t }}</a>
+  </p>
+</app-auth-shell>

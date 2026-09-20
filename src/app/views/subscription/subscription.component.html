@@ -1,0 +1,37 @@
+<div class="ff-toolbar">
+  <h2 class="h4 mb-0">{{ 'nav.subscription' | t }}</h2>
+</div>
+@if (loaded() && !items().length) {
+  <app-empty />
+} @else if (items().length) {
+  <c-card>
+    <c-card-body class="p-0">
+      <div class="table-responsive">
+        <table cTable hover class="mb-0">
+          <thead>
+            <tr>
+              <th>{{ 'subscription.company' | t }}</th>
+              <th>{{ 'subscription.start' | t }}</th>
+              <th>{{ 'subscription.end' | t }}</th>
+              <th>{{ 'subscription.daysLeft' | t }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (row of items(); track row.companyId) {
+              <tr>
+                <td>{{ row.companyName }}</td>
+                <td>{{ row.subscriptionStartAt | date:'dd MMM yyyy' }}</td>
+                <td>{{ row.subscriptionEndAt | date:'dd MMM yyyy' }}</td>
+                <td>
+                  <span [class.text-danger]="row.ended || row.daysLeft <= 15" [class.fw-semibold]="true">
+                    {{ row.ended ? ('subscription.ended' | t) : row.daysLeft }}
+                  </span>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </c-card-body>
+  </c-card>
+}

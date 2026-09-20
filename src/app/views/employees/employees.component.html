@@ -1,0 +1,159 @@
+<div class="ff-toolbar">
+  <h2 class="h4 mb-0">{{ 'nav.employees' | t }}</h2>
+  @if (auth.canWrite()) {
+    <button cButton color="primary" (click)="openAdd()">{{ 'employees.add' | t }}</button>
+  }
+</div>
+@if (error()) { <div class="text-danger mb-2">{{ error() }}</div> }
+<c-card class="mb-3 ff-filters"><c-card-body class="d-flex flex-wrap gap-2">
+  <div class="input-group" style="max-width:280px">
+    <span class="input-group-text"><svg cIcon name="cilMagnifyingGlass"></svg></span>
+    <input class="form-control" [value]="search()" (input)="search.set($any($event.target).value)" (keyup.enter)="runSearch()" placeholder="{{ 'common.searchHint' | t }}" />
+  </div>
+  @if (auth.isAdmin() && !routeBranchId && auth.isMultiBranch()) {
+    <select class="form-select" style="max-width:200px" [value]="filterBranch()" (change)="filterBranch.set($any($event.target).value); load()">
+      <option value="">{{ 'common.all' | t }}</option>
+      @for (b of auth.branches(); track b.id) { <option [value]="b.id">{{ b.name }}</option> }
+    </select>
+  }
+  <button cButton color="primary" (click)="runSearch()">{{ 'common.search' | t }}</button>
+</c-card-body></c-card>
+
+@if (list(); as data) {
+  @if (!data.items.length) { <app-empty /> } @else {
+    <c-card>
+    <div class="table-responsive">
+      <table cTable hover>
+        <thead><tr><th>{{ 'common.photo' | t }}</th><th>{{ 'common.name' | t }}</th><th>{{ 'employees.role' | t }}</th><th>{{ 'common.phone' | t }}</th><th></th></tr></thead>
+        <tbody>
+          @for (m of data.items; track m['id']) {
+            <tr>
+              <td><img [src]="m['photoUrl'] || 'assets/brand/logo.png'" appFallbackSrc class="ff-avatar" (click)="openDetail($any(m['id']))" style="cursor:pointer" alt="" /></td>
+              <td><a href="javascript:void(0)" (click)="openDetail($any(m['id']))">{{ m['fullName'] }}</a></td>
+              <td>{{ m['role'] === 'MANAGER' ? ('employees.roleManager' | t) : m['role'] === 'STAFF' ? ('employees.roleStaff' | t) : ('employees.roleTeacher' | t) }}</td>
+              <td>{{ m['phone'] }}</td>
+              <td class="text-nowrap">
+                @if (auth.canWrite()) {
+                <button cButton color="primary" variant="ghost" size="sm" class="ff-icon-btn" [attr.aria-label]="'common.edit' | t" (click)="openEdit($any(m['id']))">
+                  <svg cIcon name="cilPencil"></svg>
+                </button>
+                @if (canResetManager(m)) {
+                  <button cButton color="warning" variant="ghost" size="sm" class="ff-icon-btn" [attr.aria-label]="'employees.resetPassword' | t" (click)="resetManager($any(m['id']))">
+                    <svg cIcon name="cilLockLocked"></svg>
+                  </button>
+                }
+                <button cButton color="danger" variant="ghost" size="sm" class="ff-icon-btn" [attr.aria-label]="'common.delete' | t" (click)="remove($any(m['id']))">
+                  <svg cIcon name="cilTrash"></svg>
+                </button>
+                }
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    </c-card>
+    <app-pager [page]="data.page" [totalPages]="data.totalPages" (changed)="load($event)" />
+  }
+}
+
+<c-modal [visible]="!!detail()" (visibleChange)="!$event && detail.set(null)" size="lg" alignment="center">
+  <c-modal-header class="align-items-center">
+    <h5 cModalTitle class="mb-0">{{ detail()?.['fullName'] }}</h5>
+    <div class="ms-auto d-flex align-items-center gap-1">
+      @if (auth.canWrite()) {
+        <button cButton color="primary" variant="ghost" size="sm" class="ff-icon-btn" [attr.aria-label]="'common.edit' | t" (click)="editFromDetail()">
+          <svg cIcon name="cilPencil"></svg>
+        </button>
+      }
+      <app-modal-close (closed)="detail.set(null)" />
+    </div>
+  </c-modal-header>
+  <c-modal-body>
+    @if (detail(); as d) {
+      <div class="d-flex gap-4 mb-3 flex-wrap">
+        <img [src]="d['photoUrl'] || 'assets/brand/logo.png'" appFallbackSrc class="ff-detail-photo border" alt="" />
+        <div class="ff-detail-grid flex-grow-1">
+          <div class="lbl">{{ 'employees.role' | t }}</div><div>{{ d['role'] === 'MANAGER' ? ('employees.roleManager' | t) : d['role'] === 'STAFF' ? ('employees.roleStaff' | t) : ('employees.roleTeacher' | t) }}</div>
+          <div class="lbl">{{ 'employees.salary' | t }}</div><div class="fw-semibold">{{ d['salary'] | inr }}</div>
+          <div class="lbl">{{ 'employees.salaryDate' | t }}</div><div>{{ d['salaryDate'] | date:'dd MMM yyyy' }}</div>
+          <div class="lbl">{{ 'members.joining' | t }}</div><div>{{ d['joiningDate'] | date:'dd MMM yyyy' }}</div>
+          <div class="lbl">{{ 'common.email' | t }}</div><div>{{ d['email'] || '—' }}</div>
+          <div class="lbl">{{ 'common.phone' | t }}</div><div>{{ d['phone'] || '—' }}</div>
+          <div class="lbl">{{ 'employees.address' | t }}</div><div>{{ d['address'] || '—' }}</div>
+          @if (d['aadhaarUrl']) {
+            <div class="lbl">{{ 'employees.aadhaar' | t }}</div>
+            <div><a [href]="d['aadhaarUrl']" target="_blank">{{ 'employees.aadhaar' | t }}</a></div>
+          }
+        </div>
+      </div>
+      <div class="ff-modal-section">
+        <h6 class="mb-2">{{ 'employees.history' | t }}</h6>
+        <table cTable small striped>
+          @for (p of $any(d['salaries']); track p.id) {
+            <tr><td>{{ p.paymentDate | date:'dd MMM yyyy' }}</td><td>{{ p.amount | inr }}</td></tr>
+          }
+        </table>
+      </div>
+    }
+  </c-modal-body>
+</c-modal>
+
+<c-modal [visible]="formOpen()" [backdrop]="'static'" [keyboard]="!photos.blocking()" (visibleChange)="onFormVisible($event)" size="lg" alignment="center">
+  <c-modal-header>
+    <h5 cModalTitle>{{ editingId() ? ('common.edit' | t) : ('employees.add' | t) }}</h5>
+    <app-modal-close (closed)="onFormVisible(false)" />
+  </c-modal-header>
+  <c-modal-body>
+    @if (error()) { <div class="text-danger small mb-2">{{ error() }}</div> }
+    <form [formGroup]="form" cForm (submit)="$event.preventDefault()">
+        <app-photo-upload persistKey="employee-photo" [url]="photoUrl()" [fileId]="photoId()" (picking)="stashPhotoForm()" (uploaded)="photoId.set($event.id); photoUrl.set($event.url)" />
+      <c-row class="g-2">
+        <c-col md="6"><label cLabel>{{ 'members.fullName' | t }}</label><input cFormControl formControlName="fullName" /></c-col>
+        <c-col md="6">
+          <label cLabel>{{ 'members.gender' | t }}</label>
+          <select class="form-select" formControlName="gender"><option value="FEMALE">Female</option><option value="MALE">Male</option><option value="OTHER">Other</option></select>
+        </c-col>
+        <c-col md="6">
+          <label cLabel>{{ 'employees.role' | t }}</label>
+          <select class="form-select" formControlName="role">
+            <option value="MANAGER">{{ 'employees.roleManager' | t }}</option>
+            <option value="TEACHER">{{ 'employees.roleTeacher' | t }}</option>
+            <option value="STAFF">{{ 'employees.roleStaff' | t }}</option>
+          </select>
+        </c-col>
+        <c-col md="6">
+          <label cLabel>{{ 'employees.subject' | t }}</label>
+          <select class="form-select" formControlName="subjectId">
+            <option value="">{{ 'employees.subject' | t }}</option>
+            @for (s of subjects(); track s.id) {
+              <option [value]="s.id">{{ s.name }}</option>
+            }
+          </select>
+        </c-col>
+        <c-col md="6"><label cLabel>{{ 'employees.salary' | t }} (₹)</label><input cFormControl type="number" formControlName="salary" /></c-col>
+        <c-col md="6"><label cLabel>{{ 'employees.salaryDate' | t }}</label><input cFormControl type="date" formControlName="salaryDate" /></c-col>
+        <c-col md="6"><label cLabel>{{ 'members.joining' | t }}</label><input cFormControl type="date" formControlName="joiningDate" /></c-col>
+        <c-col md="6"><label cLabel>{{ 'common.email' | t }}@if (roleNeedsLogin) { <span class="text-danger">*</span> }</label><input cFormControl formControlName="email" type="email" /></c-col>
+        <c-col md="6"><label cLabel>{{ 'common.phone' | t }}</label><input cFormControl formControlName="phone" /></c-col>
+        <c-col md="6"><label cLabel>{{ 'members.emergency' | t }}</label><input cFormControl formControlName="emergencyContact" /></c-col>
+        <c-col md="12"><label cLabel>{{ 'employees.address' | t }}</label><input cFormControl formControlName="address" /></c-col>
+        @if (auth.isAdmin() && !routeBranchId) {
+          <c-col md="6"><label cLabel>{{ 'common.branch' | t }}</label>
+            <select class="form-select" formControlName="branchId">@for (b of auth.branches(); track b.id) { <option [value]="b.id">{{ b.name }}</option> }</select>
+          </c-col>
+        }
+        @if (roleNeedsLogin) {
+          <c-col xs="12"><div class="form-text">{{ 'employees.managerHint' | t }}</div></c-col>
+        }
+      </c-row>
+      <div class="mt-2"><label class="form-label small mb-1">{{ 'employees.aadhaar' | t }}</label>
+          <app-photo-upload persistKey="employee-aadhaar" [url]="aadhaarUrl()" [fileId]="aadhaarId()" (picking)="stashPhotoForm()" (uploaded)="aadhaarId.set($event.id); aadhaarUrl.set($event.url)" />
+      </div>
+    </form>
+  </c-modal-body>
+  <c-modal-footer>
+    <button cButton color="secondary" type="button" (click)="onFormVisible(false)">{{ 'common.cancel' | t }}</button>
+    <button cButton color="primary" type="button" (click)="save()">{{ 'common.save' | t }}</button>
+  </c-modal-footer>
+</c-modal>

@@ -1,0 +1,163 @@
+<ng-container>
+  <c-container [fluid]="true" class="border-bottom px-4">
+    <button
+      [cSidebarToggle]="sidebarId()"
+      aria-label="Toggle sidebar navigation"
+      cHeaderToggler
+      class="btn"
+      style="margin-inline-start: -14px;"
+      toggle="visible"
+    >
+      <svg cIcon name="cilMenu" size="lg"></svg>
+    </button>
+
+    <c-header-nav class="ms-auto d-flex align-items-center ff-header-cluster">
+      @if (showSubscriptionWarn()) {
+        @if (auth.isAdmin()) {
+          <a class="ff-sub-chip" routerLink="/subscription" [attr.title]="subscriptionWarning()">
+            <span class="ff-sub-chip__count">{{ subscriptionDaysLeft() }}</span>
+            <span class="ff-sub-chip__text">{{ (subscriptionDaysLeft() === 0 ? 'header.subscriptionEndsToday' : 'header.subscriptionDaysShort') | t }}</span>
+          </a>
+        } @else {
+          <div class="ff-sub-chip" role="status" [attr.title]="subscriptionWarning()">
+            <span class="ff-sub-chip__count">{{ subscriptionDaysLeft() }}</span>
+            <span class="ff-sub-chip__text">{{ (subscriptionDaysLeft() === 0 ? 'header.subscriptionEndsToday' : 'header.subscriptionDaysShort') | t }}</span>
+          </div>
+        }
+      }
+      <app-lang-switch />
+    </c-header-nav>
+
+    <c-header-nav>
+      <div class="nav-item py-1">
+        <div class="vr h-100 mx-2 text-body text-opacity-75"></div>
+      </div>
+      <c-dropdown alignment="end" variant="nav-item">
+        <button [caret]="false" cDropdownToggle class="position-relative ff-notif-btn" (click)="refreshNotifications(1)">
+          <svg cIcon name="cilBell" size="lg"></svg>
+          @if (notifCount() > 0) {
+            <c-badge color="danger" shape="rounded-pill" class="ff-notif-badge">
+              {{ notifCount() }}
+            </c-badge>
+          }
+        </button>
+        <div cDropdownMenu class="ff-notif-menu p-0 border-0 shadow">
+          <div class="ff-notif-head">
+            <div>
+              <div class="ff-notif-title">{{ 'header.notifications' | t }}</div>
+              <div class="ff-notif-sub">{{ unreadCount() }} {{ 'header.unread' | t }}</div>
+            </div>
+            @if (unreadCount() > 0) {
+              <c-badge color="danger" shape="rounded-pill">{{ unreadCount() }}</c-badge>
+            }
+          </div>
+          <div class="ff-notif-list">
+            @if (notifications().length === 0) {
+              <div class="ff-notif-empty">
+                <svg cIcon name="cilBell" size="lg" class="mb-2 text-body-secondary"></svg>
+                <div>{{ 'header.noNotifications' | t }}</div>
+              </div>
+            } @else {
+              @for (n of notifications(); track n.id) {
+                <button
+                  class="ff-notif-item"
+                  type="button"
+                  [class.is-unread]="!n.read"
+                  [class.is-unmarked]="n.read"
+                  (click)="clickNotif(n)"
+                >
+                    <span class="ff-notif-dot" [class.is-off]="!!n.read" aria-hidden="true"></span>
+                  <span class="ff-notif-icon" [class]="'text-bg-' + toneFor(n.type)">
+                    <svg cIcon [name]="iconFor(n.type)"></svg>
+                  </span>
+                  <span class="ff-notif-body">
+                    <span class="ff-notif-item-title">
+                      {{ n.title }}
+                      @if (n.read) {
+                        <span class="ff-notif-seen">{{ 'header.seen' | t }}</span>
+                      }
+                    </span>
+                    <span class="ff-notif-item-msg">{{ n.message }}</span>
+                    @if (n.dueDate) {
+                      <span class="ff-notif-item-date">{{ n.dueDate | date:'dd MMM yyyy' }}</span>
+                    }
+                  </span>
+                </button>
+              }
+            }
+          </div>
+          @if (notifTotalPages() > 1) {
+            <div class="ff-notif-foot" (click)="$event.stopPropagation()">
+              <button type="button" class="ff-notif-page-btn" [disabled]="notifPage() <= 1" (click)="notifGo(notifPage() - 1, $event)">
+                <svg cIcon name="cilChevronLeft"></svg>
+                {{ 'common.prev' | t }}
+              </button>
+              <span class="ff-notif-page-label">{{ notifPage() }} / {{ notifTotalPages() }}</span>
+              <button type="button" class="ff-notif-page-btn" [disabled]="notifPage() >= notifTotalPages()" (click)="notifGo(notifPage() + 1, $event)">
+                {{ 'common.next' | t }}
+                <svg cIcon name="cilChevronRight"></svg>
+              </button>
+            </div>
+          }
+        </div>
+      </c-dropdown>
+      <ng-container *ngTemplateOutlet="themeDropdown" />
+    </c-header-nav>
+
+    <c-header-nav class="mx-0">
+      <ng-container *ngTemplateOutlet="userDropdown" />
+    </c-header-nav>
+  </c-container>
+</ng-container>
+
+<ng-template #userDropdown>
+  <c-dropdown [popperOptions]="{ placement: 'bottom-start' }" variant="nav-item">
+    <button [caret]="false" aria-label="Open user menu" cDropdownToggle class="ff-user-chip">
+      <img [src]="auth.brandLogo()" appFallbackSrc alt="" class="ff-header-logo" />
+      <span class="d-none d-md-inline ff-user-name">{{ auth.me()?.firstName }}</span>
+    </button>
+    <ul cDropdownMenu class="pt-0 w-auto">
+      <li>
+        <h6 cDropdownHeader class="bg-body-secondary text-body-secondary fw-semibold py-2 rounded-top">
+          {{ auth.me()?.firstName }} {{ auth.me()?.lastName }}
+        </h6>
+      </li>
+      <li>
+        <a cDropdownItem routerLink="/profile">
+          <svg cIcon class="me-2" name="cilUser"></svg>
+          {{ 'nav.profile' | t }}
+        </a>
+      </li>
+      <li>
+        <hr cDropdownDivider />
+      </li>
+      <li>
+        <a cDropdownItem routerLink="/logout">
+          <svg cIcon class="me-2" name="cilAccountLogout"></svg>
+          {{ 'nav.logout' | t }}
+        </a>
+      </li>
+    </ul>
+  </c-dropdown>
+</ng-template>
+
+<ng-template #themeDropdown>
+  <c-dropdown alignment="end" variant="nav-item">
+    <button [caret]="false" aria-label="Open theme picker" cDropdownToggle>
+      <svg [name]="icons()" cIcon size="lg"></svg>
+    </button>
+    <div cDropdownMenu>
+      @for (mode of colorModes(); track mode.name) {
+        <button
+          (click)="colorMode.set(mode.name)"
+          [active]="colorMode()===mode.name"
+          cDropdownItem
+          class="d-flex align-items-center"
+        >
+          <svg [name]="mode.icon" cIcon class="me-2" size="lg"></svg>
+          {{ mode.text }}
+        </button>
+      }
+    </div>
+  </c-dropdown>
+</ng-template>

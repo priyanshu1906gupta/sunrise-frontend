@@ -1,0 +1,53 @@
+<div class="ff-toolbar">
+  <h2 class="h4 mb-0">{{ 'nav.leave' | t }}</h2>
+</div>
+@if (error()) {
+  <div class="text-danger mb-2">{{ error() }}</div>
+}
+
+<c-card class="mb-4 p-3">
+  <form [formGroup]="form" cForm (ngSubmit)="apply()">
+    <div class="row g-3">
+      <div class="col-md-4">
+        <label cLabel>{{ 'leave.from' | t }}</label>
+        <input cFormControl type="date" formControlName="fromDate" />
+      </div>
+      <div class="col-md-4">
+        <label cLabel>{{ 'leave.to' | t }}</label>
+        <input cFormControl type="date" formControlName="toDate" />
+      </div>
+      <div class="col-md-12">
+        <label cLabel>{{ 'leave.reason' | t }}</label>
+        <textarea cFormControl formControlName="reason" rows="3"></textarea>
+      </div>
+    </div>
+    <button cButton color="primary" class="mt-3" type="submit">{{ 'leave.apply' | t }}</button>
+  </form>
+</c-card>
+
+@if (!list().length) {
+  <app-empty />
+} @else {
+  <c-card>
+    <div class="table-responsive">
+      <table cTable hover>
+        <thead>
+          <tr>
+            <th>{{ 'leave.from' | t }}</th>
+            <th>{{ 'leave.to' | t }}</th>
+            <th>{{ 'leave.reason' | t }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (row of list(); track row.id) {
+            <tr>
+              <td>{{ row.fromDate | date:'dd MMM yyyy' }}</td>
+              <td>{{ row.toDate | date:'dd MMM yyyy' }}</td>
+              <td>{{ row.reason }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </c-card>
+}

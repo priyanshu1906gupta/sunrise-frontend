@@ -1,0 +1,77 @@
+<div class="ff-toolbar">
+  <h2 class="h4 mb-0">{{ 'members.importTitle' | t }}</h2>
+  <a cButton color="secondary" variant="outline" [routerLink]="backLink">{{ 'common.cancel' | t }}</a>
+</div>
+
+<c-card class="mb-3">
+  <c-card-body>
+    <p class="text-body-secondary">{{ 'members.importHint' | t }}</p>
+    @if (auth.isAdmin() && !routeHasBranch) {
+      <label class="form-label">{{ 'members.importBranch' | t }}</label>
+      <select class="form-select mb-3" style="max-width:280px" [ngModel]="branchId()" (ngModelChange)="branchId.set($event)">
+        @for (b of auth.branches(); track b.id) {
+          <option [value]="b.id">{{ b.name }}</option>
+        }
+      </select>
+    }
+    <input #fileInput class="form-control" type="file" accept=".xlsx,.xls" (change)="onFile($event)" />
+  </c-card-body>
+</c-card>
+
+@if (summary(); as s) {
+  <p class="fw-semibold">
+    {{ 'members.importCreated' | t }}: {{ s.created }} ·
+    {{ 'members.importUpdated' | t }}: {{ s.updated }} ·
+    {{ 'members.importFailed' | t }}: {{ s.failed }}
+  </p>
+}
+
+@if (rows().length) {
+  <c-card class="mb-3">
+    <div class="table-responsive">
+      <table cTable hover class="mb-0">
+        <thead>
+          <tr>
+            <th>{{ 'members.fullName' | t }}</th>
+            <th>{{ 'members.gender' | t }}</th>
+            <th>{{ 'members.joining' | t }}</th>
+            <th>{{ 'common.phone' | t }}</th>
+            <th>{{ 'common.email' | t }}</th>
+            <th>{{ 'members.course' | t }}</th>
+            <th>{{ 'members.batch' | t }}</th>
+            <th>{{ 'members.class' | t }}</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (row of rows(); track $index; let i = $index) {
+            <tr>
+              <td><input cFormControl [ngModel]="row.fullName" (ngModelChange)="updateRow(i, 'fullName', $event)" /></td>
+              <td>
+                <select class="form-select" [ngModel]="row.gender" (ngModelChange)="updateRow(i, 'gender', $event)">
+                  <option value="MALE">Male</option>
+                  <option value="FEMALE">Female</option>
+                  <option value="OTHER">Other</option>
+                </select>
+              </td>
+              <td><input cFormControl type="date" [ngModel]="row.joiningDate" (ngModelChange)="updateRow(i, 'joiningDate', $event)" /></td>
+              <td><input cFormControl [ngModel]="row.phone" (ngModelChange)="updateRow(i, 'phone', $event)" /></td>
+              <td><input cFormControl type="email" [ngModel]="row.email" (ngModelChange)="updateRow(i, 'email', $event)" /></td>
+              <td><input cFormControl [ngModel]="row.course" (ngModelChange)="updateRow(i, 'course', $event)" /></td>
+              <td><input cFormControl [ngModel]="row.batch" (ngModelChange)="updateRow(i, 'batch', $event)" /></td>
+              <td><input cFormControl [ngModel]="row.className" (ngModelChange)="updateRow(i, 'className', $event)" /></td>
+              <td>
+                <button cButton color="danger" variant="ghost" size="sm" type="button" (click)="removeRow(i)">
+                  <svg cIcon name="cilTrash"></svg>
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </c-card>
+  <button cButton color="primary" type="button" [disabled]="busy()" (click)="submit()">
+    {{ 'members.submitImport' | t }}
+  </button>
+}

@@ -1,0 +1,74 @@
+<div class="ff-toolbar">
+  <h2 class="h4 mb-0">{{ 'nav.batches' | t }}</h2>
+  @if (auth.canWrite()) {
+    <button cButton color="primary" (click)="openAdd()">{{ 'batches.add' | t }}</button>
+  }
+</div>
+@if (error()) {
+  <div class="text-danger mb-2">{{ error() }}</div>
+}
+@if (!batches().length) {
+  <app-empty />
+} @else {
+  <c-row class="g-3">
+    @for (b of batches(); track b.id) {
+      <c-col sm="6" xl="4">
+        <c-card>
+          <c-card-body>
+            <div class="d-flex justify-content-between align-items-start gap-2">
+              <div>
+                <h3 class="h5 mb-1">{{ b.name }}</h3>
+                <div class="small text-body-secondary">{{ b.courseName }}</div>
+              </div>
+              @if (auth.canWrite()) {
+                <div class="text-nowrap">
+                  <button cButton color="primary" variant="ghost" size="sm" class="ff-icon-btn" (click)="openAdd(b)">
+                    <svg cIcon name="cilPencil"></svg>
+                  </button>
+                  <button cButton color="danger" variant="ghost" size="sm" class="ff-icon-btn" (click)="remove(b.id)">
+                    <svg cIcon name="cilTrash"></svg>
+                  </button>
+                </div>
+              }
+            </div>
+            <div class="small mt-2">{{ 'batches.time' | t }}: {{ b.time || '—' }}</div>
+            <div class="small">{{ 'courses.duration' | t }}: {{ b.durationMonths }}</div>
+            <div class="small">{{ b.startDate | date:'dd MMM yyyy' }} – {{ b.endDate | date:'dd MMM yyyy' }}</div>
+            <div class="fw-semibold mt-1">{{ b.price | inr }}</div>
+          </c-card-body>
+        </c-card>
+      </c-col>
+    }
+  </c-row>
+}
+
+<c-modal [visible]="open()" (visibleChange)="open.set($event)" alignment="center">
+  <c-modal-header>
+    <h5 cModalTitle>{{ editingId() ? ('common.edit' | t) : ('batches.add' | t) }}</h5>
+    <app-modal-close (closed)="open.set(false)" />
+  </c-modal-header>
+  <c-modal-body>
+    <form [formGroup]="form" cForm>
+      <label cLabel>{{ 'common.name' | t }}</label>
+      <input cFormControl formControlName="name" class="mb-2" />
+      <label cLabel>{{ 'batches.course' | t }}</label>
+      <select class="form-select mb-2" formControlName="courseId">
+        <option value="">{{ 'batches.course' | t }}</option>
+        @for (c of courses(); track c.id) {
+          <option [value]="c.id">{{ c.name }}</option>
+        }
+      </select>
+      @if (selectedDuration) {
+        <div class="form-text mb-2">{{ 'courses.duration' | t }}: {{ selectedDuration }}</div>
+      }
+      <label cLabel>{{ 'batches.time' | t }}</label>
+      <input cFormControl formControlName="time" class="mb-2" />
+      <label cLabel>{{ 'batches.start' | t }}</label>
+      <input cFormControl type="date" formControlName="startDate" />
+    </form>
+  </c-modal-body>
+  <c-modal-footer>
+    <button cButton color="secondary" (click)="open.set(false)">{{ 'common.cancel' | t }}</button>
+    <button cButton color="primary" (click)="save()">{{ 'common.save' | t }}</button>
+  </c-modal-footer>
+</c-modal>

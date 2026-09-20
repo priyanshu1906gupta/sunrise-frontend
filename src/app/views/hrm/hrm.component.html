@@ -1,0 +1,135 @@
+<div class="ff-toolbar">
+  <div>
+    <h2 class="h4 mb-0">{{ titleKey | t }}</h2>
+    @if (data(); as grid) {
+      <p class="ff-hrm-subtitle mb-0">{{ ('hrm.month.' + grid.month) | t }} {{ grid.year }}</p>
+    }
+  </div>
+</div>
+@if (error()) {
+  <div class="text-danger mb-2">{{ error() }}</div>
+}
+<c-card class="mb-3 ff-filters ff-hrm-filters">
+  <c-card-body>
+    <div class="ff-hrm-filter-row">
+      <div class="ff-hrm-field">
+        <label class="form-label">{{ 'hrm.month' | t }}</label>
+        <select class="form-select" [ngModel]="month()" (ngModelChange)="onMonthChange($event)">
+          @for (m of months(); track m) {
+            <option [ngValue]="m" [disabled]="monthDisabled(m)">{{ ('hrm.month.' + m) | t }}</option>
+          }
+        </select>
+      </div>
+      <div class="ff-hrm-field">
+        <label class="form-label">{{ 'hrm.year' | t }}</label>
+        <select class="form-select" [ngModel]="year()" (ngModelChange)="onYearChange($event)">
+          @for (y of years(); track y) {
+            <option [ngValue]="y">{{ y }}</option>
+          }
+        </select>
+      </div>
+      <div class="input-group ff-hrm-search">
+        <span class="input-group-text"><svg cIcon name="cilMagnifyingGlass"></svg></span>
+        <input
+          class="form-control"
+          [ngModel]="search()"
+          (ngModelChange)="search.set($event)"
+          (keyup.enter)="runSearch()"
+          placeholder="{{ 'hrm.searchHint' | t }}"
+        />
+      </div>
+      <button cButton color="primary" type="button" (click)="runSearch()">{{ 'common.search' | t }}</button>
+      <c-form-check switch class="ff-hrm-weekend">
+        <input
+          cFormCheckInput
+          type="checkbox"
+          id="sunday-weekend"
+          [checked]="sundayWeekend()"
+          (change)="onWeekendToggle($any($event.target).checked)"
+        />
+        <label cFormCheckLabel for="sunday-weekend">{{ 'hrm.sundayWeekend' | t }}</label>
+      </c-form-check>
+    </div>
+                <div class="ff-hrm-legend">
+      <span class="ff-hrm-legend-label">{{ 'hrm.legend' | t }}</span>
+      @for (status of legend; track status) {
+        <span class="ff-hrm-chip" [ngClass]="cellClass(status)">{{ statusLabel(status) | t }}</span>
+      }
+    </div>
+  </c-card-body>
+</c-card>
+
+@if (data(); as grid) {
+  @if (!grid.items.length) {
+    <app-empty />
+  } @else {
+    <c-card class="ff-hrm-card">
+      <p class="ff-hrm-swipe d-lg-none mb-0">{{ 'hrm.swipeDates' | t }}</p>
+      <div class="ff-hrm-wrap">
+        <table class="table mb-0 ff-hrm-table">
+          <thead>
+            <tr>
+              <th class="ff-hrm-name">{{ 'common.name' | t }}</th>
+              @for (day of grid.days; track day.date) {
+                <th [ngClass]="dayClass(day)">
+                  <span class="ff-hrm-day-num">{{ day.day }}</span>
+                  <span class="ff-hrm-day-name">{{ ('hrm.dow.' + day.weekday) | t }}</span>
+                </th>
+              }
+              <th class="ff-hrm-salary">{{ 'employees.salary' | t }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (row of grid.items; track row.id) {
+              <tr>
+                <td class="ff-hrm-name">
+                  <div class="ff-hrm-person">
+                    <span class="ff-hrm-avatar" aria-hidden="true">{{ row.fullName.charAt(0) }}</span>
+                    <span>
+                      <span class="fw-semibold d-block">{{ row.fullName }}</span>
+                      @if (auth.isAdmin() && !routeBranchId && auth.isMultiBranch()) {
+                        <span class="small text-body-secondary">{{ row.branchName }}</span>
+                      }
+                    </span>
+                  </div>
+                </td>
+                @for (cell of row.cells; track cell.date; let i = $index) {
+                  <td [ngClass]="dayClass(grid.days[i])">
+                    <div class="ff-att-face" [ngClass]="cellClass(cell.status)">
+                      <span class="ff-att-text">{{
+                        cell.status ? (statusLabel(cell.status) | t) : ('hrm.empty' | t)
+                      }}</span>
+                      <select
+                        class="ff-att-native"
+                        [disabled]="cell.locked || saving() === row.id + ':' + cell.date"
+                        [ngModel]="cell.status ?? ''"
+                        (change)="onStatusChange(row, cell, $any($event.target).value)"
+                        [name]="'att-' + row.id + '-' + cell.date"
+                        [title]="cell.status ? (statusLabel(cell.status) | t) : ('hrm.empty' | t)"
+                      >
+                        @if (!cell.status || cell.isFuture) {
+                          <option value="">{{ 'hrm.empty' | t }}</option>
+                        }
+                        @for (status of statuses; track status) {
+                          @if (showStatusOption(cell, status)) {
+                            <option [value]="status" [disabled]="optionDisabled(cell, status)">
+                              {{ statusLabel(status) | t }}
+                            </option>
+                          }
+                        }
+                      </select>
+                    </div>
+                  </td>
+                }
+                <td class="ff-hrm-salary">
+                  <span class="ff-hrm-pay">{{ row.payable | inr }}</span>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </c-card>
+    <app-pager [page]="grid.page" [totalPages]="grid.totalPages" (changed)="load($event)" />
+  }
+}

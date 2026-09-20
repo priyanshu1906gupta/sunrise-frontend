@@ -1,0 +1,114 @@
+<div class="ff-super-bar">
+  <div class="d-flex align-items-center gap-2">
+    <img src="assets/brand/logo.png" alt="Fitness-Freaks" class="ff-super-logo" />
+    <div>
+      <div class="fw-bold">{{ 'app.name' | t }}</div>
+      <div class="small text-body-secondary">{{ 'subscription.superTitle' | t }}</div>
+    </div>
+  </div>
+  <app-lang-switch />
+</div>
+
+@if (denied()) {
+  <c-card>
+    <c-card-body class="text-center py-5">
+      <p class="mb-0">{{ 'subscription.invalidKey' | t }}</p>
+    </c-card-body>
+  </c-card>
+} @else {
+  <c-card class="mb-3 ff-filters">
+    <c-card-body class="d-flex flex-wrap gap-2">
+      <div class="input-group" style="max-width:280px">
+        <span class="input-group-text"><svg cIcon name="cilMagnifyingGlass"></svg></span>
+        <input
+          class="form-control"
+          [value]="search()"
+          (input)="search.set($any($event.target).value)"
+          (keyup.enter)="runSearch()"
+          [placeholder]="'subscription.searchHint' | t"
+        />
+      </div>
+      <select class="form-select" style="max-width:220px" [value]="ending()" (change)="ending.set($any($event.target).value); load(1)">
+        <option value="">{{ 'subscription.endingAny' | t }}</option>
+        <option value="15d">{{ 'subscription.ending15' | t }}</option>
+        <option value="1m">{{ 'subscription.ending1m' | t }}</option>
+        <option value="2m">{{ 'subscription.ending2m' | t }}</option>
+      </select>
+      <select class="form-select" style="max-width:220px" [value]="sort()" (change)="sort.set($any($event.target).value); load(1)">
+        <option value="endingSoon">{{ 'subscription.sortEnding' | t }}</option>
+        <option value="newest">{{ 'subscription.sortNewest' | t }}</option>
+      </select>
+      <button cButton color="primary" (click)="runSearch()">{{ 'common.search' | t }}</button>
+    </c-card-body>
+  </c-card>
+
+  @if (list(); as data) {
+    @if (!data.items.length) {
+      <app-empty />
+    } @else {
+      <c-card>
+        <div class="table-responsive">
+          <table cTable hover class="mb-0">
+            <thead>
+              <tr>
+                <th>{{ 'subscription.owner' | t }}</th>
+                <th>{{ 'subscription.company' | t }}</th>
+                <th>{{ 'common.phone' | t }}</th>
+                <th>{{ 'subscription.start' | t }}</th>
+                <th>{{ 'subscription.end' | t }}</th>
+                <th>{{ 'subscription.daysLeft' | t }}</th>
+                <th>{{ 'subscription.extend' | t }}</th>
+                <th>{{ 'common.status' | t }}</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (row of data.items; track row.userId) {
+                <tr>
+                  <td>{{ row.ownerName }}</td>
+                  <td>{{ row.companyName }}</td>
+                  <td>{{ row.phone }}</td>
+                  <td>{{ row.subscriptionStartAt | date:'dd MMM yyyy' }}</td>
+                  <td>{{ row.subscriptionEndAt | date:'dd MMM yyyy' }}</td>
+                  <td>
+                    <span [class.text-danger]="row.ended || row.daysLeft <= 15" class="fw-semibold">
+                      {{ row.ended ? ('subscription.ended' | t) : row.daysLeft }}
+                    </span>
+                  </td>
+                  <td>
+                    <select class="form-select form-select-sm" (change)="extend(row, $event)">
+                      <option value="">{{ 'subscription.extend' | t }}</option>
+                      @for (opt of extendOptions; track opt.months) {
+                        <option [value]="opt.months">{{ opt.labelKey | t }}</option>
+                      }
+                    </select>
+                  </td>
+                  <td>
+                    <select class="form-select form-select-sm" [value]="row.active ? '1' : '0'" (change)="setActive(row, $event)">
+                      <option value="1">{{ 'common.active' | t }}</option>
+                      <option value="0">{{ 'subscription.deactivated' | t }}</option>
+                    </select>
+                  </td>
+                  <td class="text-nowrap">
+                    <button
+                      cButton
+                      color="warning"
+                      variant="ghost"
+                      size="sm"
+                      class="ff-icon-btn"
+                      [attr.aria-label]="'subscription.resetPassword' | t"
+                      (click)="resetPassword(row)"
+                    >
+                      <svg cIcon name="cilLockLocked"></svg>
+                    </button>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </c-card>
+      <app-pager [page]="data.page" [totalPages]="data.totalPages" (changed)="load($event)" />
+    }
+  }
+}

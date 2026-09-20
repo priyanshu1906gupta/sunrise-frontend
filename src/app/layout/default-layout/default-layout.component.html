@@ -1,0 +1,42 @@
+<!--sidebar-->
+<c-sidebar
+  #sidebar1="cSidebar"
+  class="d-print-none sidebar sidebar-fixed border-end ff-sidebar"
+  colorScheme="dark"
+  id="sidebar1"
+  visible
+>
+  <c-sidebar-header class="border-bottom ff-sidebar-brand-wrap">
+    <c-sidebar-brand [routerLink]="['/dashboard']">
+      <img [src]="auth.brandLogo()" appFallbackSrc alt="Sunrise Coaching Khargone" class="sidebar-brand-full ff-brand-logo" />
+      <img [src]="auth.brandLogo()" appFallbackSrc alt="Sunrise Coaching Khargone" class="sidebar-brand-narrow ff-brand-logo" />
+    </c-sidebar-brand>
+  </c-sidebar-header>
+
+  <ng-scrollbar pointerEventsMethod="scrollbar" visibility="hover">
+    @for (lang of [i18n.lang()]; track lang) {
+      <c-sidebar-nav [navItems]="navItems()" dropdownMode="none" compact />
+    }
+  </ng-scrollbar>
+
+  @if (!sidebar1.narrow) {
+    <c-sidebar-footer cSidebarToggle="sidebar1" class="border-top d-none d-lg-flex" toggle="unfoldable" style="cursor: pointer;">
+      <button cSidebarToggler aria-label="Toggle sidebar fold"></button>
+    </c-sidebar-footer>
+  }
+</c-sidebar>
+
+<div class="wrapper d-flex flex-column min-vh-100 ff-app">
+  <app-default-header
+    [cShadowOnScroll]="'sm'"
+    class="d-print-none header header-sticky p-0 ff-header"
+    position="sticky"
+    sidebarId="sidebar1"
+  />
+  <div class="body flex-grow-1 ff-page-body">
+    <c-container breakpoint="lg" class="h-auto px-4 py-4">
+      <router-outlet />
+    </c-container>
+  </div>
+  <app-default-footer />
+</div>

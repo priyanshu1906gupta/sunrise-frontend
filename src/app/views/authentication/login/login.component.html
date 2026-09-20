@@ -1,0 +1,26 @@
+<app-auth-shell>
+  <h2 class="ff-auth-title">{{ 'auth.login' | t }}</h2>
+  @if (error()) {
+    <div class="ff-auth-error">{{ error() }}</div>
+  }
+  <form [formGroup]="form" (ngSubmit)="submit()" cForm>
+    <div class="mb-3">
+      <label cLabel for="email">{{ 'auth.email' | t }}</label>
+      <input cFormControl id="email" formControlName="email" autocomplete="username" />
+    </div>
+    <div class="mb-3">
+      <label cLabel for="password">{{ 'auth.password' | t }}</label>
+      <app-password-input inputId="password" formControlName="password" autocomplete="current-password" />
+      <div class="mt-2">
+        <a routerLink="/authentication/password/reset">{{ 'auth.forgot' | t }}</a>
+      </div>
+    </div>
+    <button cButton class="w-100 ff-auth-submit" color="primary" type="submit">
+      {{ 'auth.loginBtn' | t }}
+    </button>
+  </form>
+  <p class="ff-auth-footer">
+    {{ 'auth.needAccount' | t }}
+    <a routerLink="/authentication/register">{{ 'auth.registerLink' | t }}</a>
+  </p>
+</app-auth-shell>

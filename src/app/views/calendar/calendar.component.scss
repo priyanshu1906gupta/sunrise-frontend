@@ -1,0 +1,107 @@
+.ff-cal-month {
+  min-width: 10rem;
+  text-align: center;
+}
+
+.ff-legend {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.ff-dot {
+  width: 0.65rem;
+  height: 0.65rem;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.ff-cal {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.ff-cal-dow {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-align: center;
+  text-transform: uppercase;
+  color: var(--cui-secondary-color);
+  padding-bottom: 0.25rem;
+}
+
+.ff-cal-cell {
+  min-height: 7.5rem;
+  border: 1px solid var(--cui-border-color);
+  border-radius: 0.5rem;
+  background: var(--cui-body-bg);
+  text-align: start;
+  padding: 0.4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
+}
+
+.ff-cal-cell:hover {
+  border-color: var(--cui-primary);
+  box-shadow: 0 0 0 1px var(--cui-primary);
+}
+
+.ff-cal-cell.muted {
+  opacity: 0.45;
+}
+
+.ff-cal-cell.today {
+  background: color-mix(in srgb, var(--cui-info) 12%, var(--cui-body-bg));
+  border-color: var(--cui-info);
+}
+
+.ff-cal-cell.selected {
+  border-color: var(--cui-primary);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--cui-primary) 35%, transparent);
+}
+
+.ff-cal-day {
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+.ff-cal-events {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  overflow: hidden;
+}
+
+.ff-cal-pill {
+  font-size: 0.7rem;
+  line-height: 1.2;
+  border-radius: 0.25rem;
+  padding: 1px 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ff-event-item {
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--cui-border-color);
+}
+
+.ff-event-item:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+
+@media (max-width: 768px) {
+  .ff-cal-cell {
+    min-height: 4.5rem;
+    padding: 0.25rem;
+  }
+
+  .ff-cal-pill {
+    font-size: 0.6rem;
+  }
+}

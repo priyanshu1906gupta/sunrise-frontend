@@ -1,0 +1,65 @@
+<div class="ff-toolbar">
+  <h2 class="h4 mb-0">{{ auth.isAdmin() ? ('profile.title' | t) : ('nav.profile' | t) }}</h2>
+  @if (auth.isAdmin() && !editing()) {
+    <button cButton color="primary" variant="ghost" class="ff-icon-btn" [attr.aria-label]="'common.edit' | t" (click)="startEdit()">
+      <svg cIcon name="cilPencil"></svg>
+    </button>
+  }
+</div>
+@if (error()) { <div class="text-danger mb-2">{{ error() }}</div> }
+
+@if (company(); as c) {
+  <c-card class="mb-3">
+    <c-card-body>
+      <img [src]="c['logoUrl'] || 'assets/brand/logo.png'" appFallbackSrc class="ff-logo-lg mb-3 border" alt="" />
+      @if (!auth.isAdmin() || !editing()) {
+        <p class="mb-1 fw-semibold">{{ c['name'] }}</p>
+        <p class="mb-1">{{ c['ownerName'] }}</p>
+        <p class="mb-1">{{ c['email'] }} · {{ c['phone'] }}</p>
+        <p class="mb-0">{{ c['bio'] }}</p>
+        <div class="d-flex gap-2 flex-wrap mt-2">
+          @for (img of $any(c['images']); track img.id) {
+            <img [src]="img.url" appFallbackSrc style="width:120px;height:90px;object-fit:cover" class="rounded" alt="" />
+          }
+        </div>
+      } @else {
+        <form [formGroup]="form" cForm (submit)="$event.preventDefault()">
+          <app-photo-upload persistKey="company-logo" [label]="'branch.logo' | t" [url]="$any(c['logoUrl'])" [fileId]="logoId()" (picking)="stashPhotoForm()" (uploaded)="logoId.set($event.id)" />
+          <label cLabel>{{ 'auth.business' | t }}</label>
+          <input cFormControl formControlName="name" class="mb-2" />
+          <label cLabel>{{ 'branch.owner' | t }}</label>
+          <input cFormControl formControlName="ownerName" class="mb-2" />
+          <label cLabel>{{ 'common.email' | t }}</label>
+          <input cFormControl formControlName="email" class="mb-2" />
+          <label cLabel>{{ 'common.phone' | t }}</label>
+          <input cFormControl formControlName="phone" class="mb-2" />
+          <label cLabel>Bio</label>
+          <textarea cFormControl formControlName="bio" rows="3"></textarea>
+          <app-photo-upload persistKey="company-photos" class="mt-2" [label]="'branch.photos' | t" (picking)="stashPhotoForm()" (uploaded)="imageIds.update(ids => ids.length < 3 ? [...ids, $event.id] : ids)" />
+          <div class="mt-3 d-flex gap-2">
+            <button cButton color="secondary" type="button" (click)="editing.set(false)">{{ 'common.cancel' | t }}</button>
+            <button cButton color="primary" type="button" (click)="save()">{{ 'common.save' | t }}</button>
+          </div>
+        </form>
+      }
+    </c-card-body>
+  </c-card>
+}
+
+<c-card>
+  <c-card-header>{{ 'profile.changePassword' | t }}</c-card-header>
+  <c-card-body>
+    @if (passwordError()) { <div class="text-danger small mb-2">{{ passwordError() }}</div> }
+    @if (passwordOk()) { <div class="text-success small mb-2">{{ passwordOk() }}</div> }
+    <form [formGroup]="passwordForm" cForm (ngSubmit)="savePassword()">
+      <label cLabel>{{ 'profile.oldPassword' | t }}</label>
+      <app-password-input class="mb-2" formControlName="oldPassword" autocomplete="current-password" />
+      <label cLabel>{{ 'profile.newPassword' | t }}</label>
+      <app-password-input class="mb-2" formControlName="newPassword" autocomplete="new-password" />
+      <div class="form-text mb-2">{{ 'auth.passwordHint' | t }}</div>
+      <label cLabel>{{ 'profile.confirmPassword' | t }}</label>
+      <app-password-input class="mb-3" formControlName="confirmPassword" autocomplete="new-password" />
+      <button cButton color="primary" type="submit">{{ 'common.save' | t }}</button>
+    </form>
+  </c-card-body>
+</c-card>

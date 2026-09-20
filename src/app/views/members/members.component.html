@@ -1,0 +1,312 @@
+<div class="ff-toolbar">
+  <h2 class="h4 mb-0">{{ 'nav.students' | t }}</h2>
+  <div class="d-flex flex-wrap gap-2">
+    @if (auth.isAdmin()) {
+      <button cButton color="secondary" variant="outline" type="button" (click)="downloadList()">
+        <svg cIcon name="cilCloudDownload" class="me-1"></svg>{{ 'members.downloadList' | t }}
+      </button>
+    }
+    @if (auth.canWrite()) {
+      <button cButton color="secondary" variant="outline" type="button" (click)="goImport()">
+        <svg cIcon name="cilCloudUpload" class="me-1"></svg>{{ 'members.uploadList' | t }}
+      </button>
+      <button cButton color="primary" (click)="openAdd()">{{ 'members.add' | t }}</button>
+    }
+  </div>
+</div>
+@if (error()) { <div class="text-danger mb-2">{{ error() }}</div> }
+<c-card class="mb-3 ff-filters">
+  <c-card-body class="d-flex flex-wrap gap-2">
+    <div class="input-group" style="max-width:280px">
+      <span class="input-group-text"><svg cIcon name="cilMagnifyingGlass"></svg></span>
+      <input class="form-control" [value]="search()" (input)="search.set($any($event.target).value)" (keyup.enter)="runSearch()" placeholder="{{ 'common.searchHint' | t }}" />
+    </div>
+    <select class="form-select" style="max-width:140px" [value]="listStatus()" (change)="listStatus.set($any($event.target).value); load(1)">
+      <option value="active">{{ 'members.listActive' | t }}</option>
+      <option value="deactive">{{ 'members.listDeactive' | t }}</option>
+    </select>
+    <select class="form-select" style="max-width:200px" [value]="filterCourse()" (change)="filterCourse.set($any($event.target).value); load(1)">
+      <option value="">{{ 'members.allTrainers' | t }}</option>
+      @for (c of courses(); track c.id) {
+        <option [value]="c.id">{{ c.name }}</option>
+      }
+    </select>
+    @if (auth.isAdmin() && !routeBranchId && auth.isMultiBranch()) {
+      <select class="form-select" style="max-width:200px" [value]="filterBranch()" (change)="onFilterBranchChange($any($event.target).value)">
+        <option value="">{{ 'common.all' | t }}</option>
+        @for (b of auth.branches(); track b.id) {
+          <option [value]="b.id">{{ b.name }}</option>
+        }
+      </select>
+    }
+    <button cButton color="primary" (click)="runSearch()">{{ 'common.search' | t }}</button>
+  </c-card-body>
+</c-card>
+
+@if (list(); as data) {
+  @if (!data.items.length) { <app-empty /> }
+  @else {
+    <c-card>
+    <div class="table-responsive">
+      <table cTable hover>
+        <thead>
+          <tr>
+            <th>{{ 'common.photo' | t }}</th>
+            <th>{{ 'common.name' | t }}</th>
+            <th>{{ 'members.course' | t }}</th>
+            <th>{{ 'common.phone' | t }}</th>
+            <th>{{ 'members.monthEnd' | t }}</th>
+            <th>{{ 'members.subscription' | t }}</th>
+            <th>{{ 'members.subscriptionStatus' | t }}</th>
+            <th>{{ 'members.paymentStatus' | t }}</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (m of data.items; track m['id']) {
+            <tr>
+              <td>
+                <img [src]="m['photoUrl'] || 'assets/brand/logo.png'" appFallbackSrc class="ff-avatar" (click)="openDetail($any(m['id']))" style="cursor:pointer" alt="" />
+              </td>
+              <td><a href="javascript:void(0)" (click)="openDetail($any(m['id']))">{{ m['fullName'] }}</a></td>
+              <td>{{ courseNames($any(m)) }}</td>
+              <td>{{ m['phone'] }}</td>
+              <td>{{ m['monthEndDate'] | date:'dd MMM yyyy' }}</td>
+              <td>{{ m['subscriptionMonths'] }} {{ 'courses.duration' | t }}</td>
+              <td>
+                <c-badge [color]="m['subscriptionStatus'] === 'ACTIVE' ? 'success' : 'danger'">
+                  {{ m['subscriptionStatus'] === 'ACTIVE' ? ('common.active' | t) : ('members.expired' | t) }}
+                </c-badge>
+              </td>
+              <td>
+                <c-badge [color]="m['paymentStatus'] === 'PAID' ? 'success' : 'danger'">{{ m['paymentStatus'] }}</c-badge>
+              </td>
+              <td class="text-nowrap">
+                @if (auth.canWrite()) {
+                  @if (isDeactiveList) {
+                    <button cButton color="success" variant="ghost" size="sm" class="ff-icon-btn" [attr.aria-label]="'common.renew' | t" (click)="restore($any(m['id']))">
+                      <svg cIcon name="cilReload"></svg>
+                    </button>
+                  } @else {
+                    <button cButton color="primary" variant="ghost" size="sm" class="ff-icon-btn" [attr.aria-label]="'common.edit' | t" (click)="openEdit($any(m['id']))">
+                      <svg cIcon name="cilPencil"></svg>
+                    </button>
+                    <button cButton color="danger" variant="ghost" size="sm" class="ff-icon-btn" [attr.aria-label]="'common.delete' | t" (click)="remove($any(m['id']))">
+                      <svg cIcon name="cilTrash"></svg>
+                    </button>
+                  }
+                }
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    </c-card>
+    <app-pager [page]="data.page" [totalPages]="data.totalPages" (changed)="load($event)" />
+  }
+}
+
+<c-modal [visible]="!!detail()" (visibleChange)="onDetailVisible($event)" size="lg" alignment="center">
+  <c-modal-header class="align-items-center">
+    <h5 cModalTitle class="mb-0">
+      {{ detail()?.['fullName'] }}
+      <c-badge class="ms-2" [color]="detail()?.['deactivated'] ? 'secondary' : (detail()?.['status'] === 'ACTIVE' ? 'success' : 'secondary')">
+        {{ detail()?.['deactivated'] ? ('members.listDeactive' | t) : detail()?.['status'] }}
+      </c-badge>
+    </h5>
+    <div class="ms-auto d-flex align-items-center gap-1">
+      @if (!detail()?.['deactivated'] && auth.canWrite()) {
+        <button cButton color="primary" variant="ghost" size="sm" class="ff-icon-btn" [attr.aria-label]="'common.edit' | t" (click)="editFromDetail()">
+          <svg cIcon name="cilPencil"></svg>
+        </button>
+      }
+      <app-modal-close (closed)="detail.set(null)" />
+    </div>
+  </c-modal-header>
+  <c-modal-body>
+    @if (detail(); as d) {
+      <div class="ff-subtabs" role="tablist">
+        <button type="button" role="tab" [class.is-active]="detailTab() === 'general'" (click)="detailTab.set('general')">
+          {{ 'members.generalDetails' | t }}
+        </button>
+        <button type="button" role="tab" [class.is-active]="detailTab() === 'transactions'" (click)="detailTab.set('transactions')">
+          {{ 'members.transactions' | t }}
+        </button>
+      </div>
+      @if (detailTab() === 'general') {
+        <div class="d-flex gap-4 mb-3 flex-wrap">
+          <img [src]="d['photoUrl'] || 'assets/brand/logo.png'" appFallbackSrc class="ff-detail-photo border" alt="" />
+          <div class="flex-grow-1">
+            <div class="ff-detail-grid">
+              <div class="lbl">{{ 'members.course' | t }}</div><div class="fw-semibold">{{ courseNames(d) }}</div>
+              <div class="lbl">{{ 'members.joining' | t }}</div><div>{{ d['joiningDate'] | date:'dd MMM yyyy' }}</div>
+              <div class="lbl">{{ 'common.email' | t }}</div><div>{{ d['email'] || '—' }}</div>
+              <div class="lbl">{{ 'common.phone' | t }}</div><div>{{ d['phone'] || '—' }}</div>
+              <div class="lbl">{{ 'members.class' | t }}</div><div>{{ d['className'] || '—' }}</div>
+              <div class="lbl">{{ 'members.board' | t }}</div><div>{{ d['boardName'] || '—' }}</div>
+            </div>
+          </div>
+        </div>
+        <div class="ff-modal-section">
+          <h6 class="mb-2">{{ 'members.paymentDetails' | t }}</h6>
+          <div class="ff-detail-grid">
+            <div class="lbl">{{ 'members.subscriptionMonths' | t }}</div><div>{{ d['subscriptionMonths'] }}</div>
+            <div class="lbl">{{ 'members.registrationCharge' | t }}</div><div>{{ d['registrationCharge'] | inr }}</div>
+            <div class="lbl">{{ 'members.amount' | t }}</div><div class="fw-semibold">{{ (d['paymentAmount'] ?? d['monthlyAmount']) | inr }}</div>
+            <div class="lbl">{{ 'members.paidAmount' | t }}</div><div>{{ d['paidAmount'] | inr }}</div>
+            <div class="lbl">{{ 'members.remainingAmount' | t }}</div><div class="fw-semibold">{{ remainingAmount(d) | inr }}</div>
+            <div class="lbl">{{ 'members.subscriptionStart' | t }}</div><div>{{ d['paymentDate'] | date:'dd MMM yyyy' }}</div>
+            <div class="lbl">{{ 'members.subscriptionEnd' | t }}</div><div>{{ d['monthEndDate'] | date:'dd MMM yyyy' }}</div>
+            <div class="lbl">{{ 'members.nextPaymentDate' | t }}</div><div class="fw-semibold">{{ (d['nextPaymentDate'] || d['monthEndDate']) | date:'dd MMM yyyy' }}</div>
+            <div class="lbl">{{ 'members.paymentStatus' | t }}</div>
+            <div><c-badge [color]="d['paymentStatus'] === 'PAID' ? 'success' : 'danger'">{{ d['paymentStatus'] }}</c-badge></div>
+          </div>
+        </div>
+      } @else {
+        @if (!paymentsOf(d).length) {
+          <p class="text-body-secondary mb-0">{{ 'members.noPayments' | t }}</p>
+        } @else {
+          <div class="table-responsive">
+            <table cTable small striped class="ff-txn-table mb-0">
+              <thead>
+                <tr>
+                  <th>{{ 'members.paymentDate' | t }}</th>
+                  <th>{{ 'payments.paid' | t }}</th>
+                  <th>{{ 'payments.mode' | t }}</th>
+                  <th>{{ 'members.remainingAmount' | t }}</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (p of pagedPayments(d); track p.id) {
+                  <tr>
+                    <td>{{ p.paymentDate | date:'dd MMM yyyy' }}</td>
+                    <td class="fw-semibold">{{ p.amount | inr }}</td>
+                    <td>{{ paymentModeLabel(p.paymentMode) | t }}</td>
+                    <td>{{ p.dueAmountAfter | inr }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+          <app-pager [page]="txnPage()" [totalPages]="txnTotalPages(d)" (changed)="txnPage.set($event)" />
+        }
+      }
+    }
+  </c-modal-body>
+</c-modal>
+
+<c-modal [visible]="formOpen()" [backdrop]="'static'" [keyboard]="!photos.blocking()" (visibleChange)="onFormVisible($event)" size="lg" alignment="center">
+  <c-modal-header>
+    <h5 cModalTitle>{{ editingId() ? ('common.edit' | t) : ('members.add' | t) }}</h5>
+    <app-modal-close (closed)="onFormVisible(false)" />
+  </c-modal-header>
+  <c-modal-body>
+    @if (error()) { <div class="text-danger small mb-2">{{ error() }}</div> }
+    <form [formGroup]="form" cForm (submit)="$event.preventDefault()">
+        <app-photo-upload persistKey="member-photo" [url]="photoUrl()" [fileId]="photoId()" (picking)="stashPhotoForm()" (uploaded)="photoId.set($event.id); photoUrl.set($event.url)" />
+      <h6 class="mt-3 mb-2">{{ 'members.generalDetails' | t }}</h6>
+      <c-row class="g-2">
+        <c-col md="6"><label cLabel>{{ 'members.fullName' | t }}</label><input cFormControl formControlName="fullName" /></c-col>
+        <c-col md="6">
+          <label cLabel>{{ 'members.gender' | t }}</label>
+          <select class="form-select" formControlName="gender">
+            <option value="FEMALE">Female</option>
+            <option value="MALE">Male</option>
+            <option value="OTHER">Other</option>
+          </select>
+        </c-col>
+        <c-col md="6"><label cLabel>{{ 'members.dob' | t }}</label><input cFormControl type="date" formControlName="dateOfBirth" /></c-col>
+        <c-col md="6"><label cLabel>{{ 'members.joining' | t }}</label><input cFormControl type="date" formControlName="joiningDate" /></c-col>
+        <c-col md="6"><label cLabel>{{ 'common.email' | t }}</label><input cFormControl formControlName="email" /></c-col>
+        <c-col md="6"><label cLabel>{{ 'common.phone' | t }}</label><input cFormControl formControlName="phone" /></c-col>
+        <c-col md="6"><label cLabel>{{ 'members.emergency' | t }}</label><input cFormControl formControlName="emergencyContact" /></c-col>
+        <c-col md="6">
+          <label cLabel>{{ 'members.class' | t }}</label>
+          <select class="form-select" formControlName="schoolClassId">
+            <option value="">{{ 'members.class' | t }}</option>
+            @for (c of classes(); track c.id) { <option [value]="c.id">{{ c.name }}</option> }
+          </select>
+        </c-col>
+        <c-col md="6">
+          <label cLabel>{{ 'members.board' | t }}</label>
+          <select class="form-select" formControlName="boardId">
+            <option value="">{{ 'members.board' | t }}</option>
+            @for (b of boards(); track b.id) { <option [value]="b.id">{{ b.name }}</option> }
+          </select>
+        </c-col>
+        @if (auth.isAdmin() && !routeBranchId) {
+          <c-col md="6">
+            <label cLabel>{{ 'common.branch' | t }}</label>
+            <select class="form-select" formControlName="branchId">
+              @for (b of auth.branches(); track b.id) { <option [value]="b.id">{{ b.name }}</option> }
+            </select>
+          </c-col>
+        }
+        <c-col xs="12">
+          <label cLabel>{{ 'members.course' | t }}</label>
+          <div class="d-flex flex-wrap gap-2">
+            @for (c of courses(); track c.id) {
+              <label class="form-check">
+                <input class="form-check-input" type="checkbox" [checked]="selectedCourseIds().includes(c.id)" (change)="toggleCourse(c.id)" />
+                <span class="form-check-label">{{ c.name }}</span>
+              </label>
+            }
+          </div>
+        </c-col>
+        <c-col xs="12">
+          <label cLabel>{{ 'members.batch' | t }}</label>
+          <div class="d-flex flex-wrap gap-2">
+            @for (b of batches(); track b.id) {
+              <label class="form-check">
+                <input class="form-check-input" type="checkbox" [checked]="selectedBatchIds().includes(b.id)" (change)="toggleBatch(b.id)" />
+                <span class="form-check-label">{{ b.name }}</span>
+              </label>
+            }
+          </div>
+        </c-col>
+      </c-row>
+      <div class="ff-modal-section">
+        <h6 class="mb-2">{{ 'members.paymentDetails' | t }}</h6>
+        <c-row class="g-2">
+          <c-col md="6">
+            <label cLabel>{{ 'members.subscriptionMonths' | t }}</label>
+            <select class="form-select" formControlName="subscriptionMonths">
+              @for (n of durationOptions(); track n) {
+                <option [value]="'' + n">{{ n }} {{ 'courses.duration' | t }}</option>
+              }
+            </select>
+          </c-col>
+          <c-col md="6"><label cLabel>{{ 'members.registrationCharge' | t }} (₹)</label><input cFormControl type="number" formControlName="registrationCharge" /></c-col>
+          <c-col md="6"><label cLabel>{{ 'members.amount' | t }} (₹)</label><input cFormControl type="number" formControlName="monthlyAmount" readonly /></c-col>
+          @if (!editingId()) {
+            <c-col md="6"><label cLabel>{{ 'members.paidAmount' | t }} (₹)</label><input cFormControl type="number" formControlName="paidAmount" /></c-col>
+          } @else {
+            <c-col md="6">
+              <label cLabel>{{ 'members.paidAmount' | t }} (₹)</label>
+              <input cFormControl type="number" [value]="form.controls.paidAmount.value" readonly />
+            </c-col>
+          }
+          <c-col md="6"><label cLabel>{{ 'members.paymentDate' | t }}</label><input cFormControl type="date" formControlName="paymentDate" /></c-col>
+          <c-col md="6">
+            <label cLabel>{{ 'members.nextPaymentDate' | t }}</label>
+            <input cFormControl type="date" [value]="formNextPaymentDate" readonly />
+          </c-col>
+          <c-col md="6" class="d-flex flex-column justify-content-end">
+            <div class="mb-2">
+              <span class="lbl d-block small text-body-secondary">{{ 'members.paymentStatus' | t }}</span>
+              <c-badge [color]="derivedPaymentStatus === 'PAID' ? 'success' : 'danger'">{{ derivedPaymentStatus }}</c-badge>
+            </div>
+          </c-col>
+        </c-row>
+        @if (form.hasError('paidExceedsAmount') && (form.touched || form.dirty)) {
+          <div class="text-danger small mt-2">{{ 'members.paidExceeds' | t }}</div>
+        }
+      </div>
+    </form>
+  </c-modal-body>
+  <c-modal-footer>
+    <button cButton color="secondary" type="button" (click)="onFormVisible(false)">{{ 'common.cancel' | t }}</button>
+    <button cButton color="primary" type="button" (click)="save()">{{ 'common.save' | t }}</button>
+  </c-modal-footer>
+</c-modal>

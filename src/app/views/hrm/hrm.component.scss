@@ -1,0 +1,378 @@
+:host {
+  display: block;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.ff-hrm-subtitle {
+  margin-top: 0.15rem;
+  font-size: 0.82rem;
+  color: var(--cui-secondary-color);
+}
+
+.ff-hrm-filters {
+  border: 0;
+  box-shadow: 0 0.5rem 1.25rem rgba(21, 46, 32, 0.06);
+}
+
+.ff-hrm-filters .card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.ff-hrm-field .form-label {
+  margin-bottom: 0.25rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--cui-secondary-color);
+}
+
+.ff-hrm-filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem 0.75rem;
+  align-items: flex-end;
+}
+
+.ff-hrm-field {
+  min-width: 140px;
+}
+
+.ff-hrm-field .form-select {
+  min-width: 150px;
+}
+
+.ff-hrm-search {
+  max-width: 280px;
+  flex: 1 1 220px;
+}
+
+.ff-hrm-weekend {
+  margin-left: auto;
+  padding: 0.35rem 0.7rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--cui-primary) 8%, var(--cui-body-bg));
+}
+
+.ff-hrm-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.ff-hrm-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.15rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 650;
+  line-height: 1.2;
+}
+
+.ff-hrm-card {
+  overflow: hidden;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.ff-hrm-swipe {
+  padding: 0.55rem 0.85rem 0;
+  font-size: 0.75rem;
+  font-weight: 650;
+  color: var(--cui-secondary-color);
+}
+
+.ff-hrm-wrap {
+  overflow-x: auto;
+  overflow-y: hidden;
+  max-width: 100%;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
+}
+
+.ff-hrm-table,
+.ff-hrm-table.table {
+  width: max-content;
+  min-width: 100%;
+  margin-bottom: 0;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.ff-hrm-table th,
+.ff-hrm-table td {
+  vertical-align: middle;
+  background: var(--cui-body-bg);
+  border-bottom: 1px solid var(--cui-border-color);
+}
+
+.ff-hrm-name {
+  position: sticky;
+  left: 0;
+  z-index: 5;
+  min-width: 180px;
+  max-width: 220px;
+  isolation: isolate;
+  background: var(--cui-body-bg);
+  box-shadow: 8px 0 10px -8px rgba(0, 0, 0, 0.16);
+}
+
+.ff-hrm-person {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.ff-hrm-avatar {
+  flex-shrink: 0;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #146c36;
+  background: color-mix(in srgb, var(--cui-primary) 18%, #fff);
+}
+
+.ff-hrm-salary {
+  position: sticky;
+  right: 0;
+  z-index: 5;
+  min-width: 118px;
+  text-align: right;
+  isolation: isolate;
+  background: var(--cui-body-bg);
+  box-shadow: -8px 0 10px -8px rgba(0, 0, 0, 0.16);
+}
+
+.ff-hrm-pay {
+  font-weight: 700;
+  color: var(--cui-body-color);
+}
+
+.ff-hrm-table thead .ff-hrm-name,
+.ff-hrm-table thead .ff-hrm-salary {
+  z-index: 6;
+  background: color-mix(in srgb, var(--cui-tertiary-bg) 88%, #fff);
+}
+
+.ff-hrm-table thead th {
+  background: color-mix(in srgb, var(--cui-tertiary-bg) 88%, #fff);
+}
+
+.ff-hrm-day {
+  position: relative;
+  z-index: 0;
+  width: 5.65rem;
+  min-width: 5.65rem;
+  max-width: 5.65rem;
+  padding: 0.32rem 0.22rem;
+  overflow: hidden;
+}
+
+.ff-hrm-day-num,
+.ff-hrm-day-name {
+  display: block;
+  line-height: 1.15;
+  text-align: center;
+}
+
+.ff-hrm-day-num {
+  font-weight: 750;
+  font-size: 0.92rem;
+}
+
+.ff-hrm-day-name {
+  font-size: 0.68rem;
+  font-weight: 650;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--cui-secondary-color);
+}
+
+.ff-hrm-day.is-today {
+  background: color-mix(in srgb, var(--cui-primary) 10%, var(--cui-body-bg));
+}
+
+.ff-hrm-day.is-today .ff-hrm-day-num {
+  color: var(--cui-primary);
+}
+
+.ff-hrm-day.is-sunday {
+  background: color-mix(in srgb, #6c757d 8%, var(--cui-body-bg));
+  padding-right: 0.38rem;
+}
+
+.ff-hrm-table thead .ff-hrm-day.is-sunday {
+  background: color-mix(in srgb, #6c757d 14%, var(--cui-tertiary-bg));
+}
+
+.ff-hrm-legend-label {
+  align-self: center;
+  margin-right: 0.15rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--cui-secondary-color);
+}
+
+.ff-hrm-day.is-week-start {
+  padding-left: 0.62rem;
+}
+
+.ff-hrm-day.is-week-start::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 3px;
+  background: var(--cui-primary);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.ff-att-face {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  height: 1.7rem;
+  border-radius: 0.4rem;
+}
+
+.ff-att-face::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  right: 0.38rem;
+  width: 0;
+  height: 0;
+  border-left: 3.5px solid transparent;
+  border-right: 3.5px solid transparent;
+  border-top: 4.5px solid currentColor;
+  transform: translateY(-50%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.ff-att-text {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  padding: 0 1.05rem 0 0.4rem;
+  font-size: 0.68rem;
+  font-weight: 700;
+  line-height: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.ff-att-native {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  opacity: 0;
+  border: 0;
+  background: none;
+  appearance: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+}
+
+.ff-att-native:disabled {
+  cursor: not-allowed;
+}
+
+.ff-att-face:has(.ff-att-native:disabled) {
+  opacity: 0.92;
+}
+
+.ff-att {
+  font-weight: 700;
+  border-radius: 0.45rem;
+}
+
+.ff-att-AVAILABLE {
+  background: #198754;
+  color: #fff;
+}
+
+.ff-att-LEAVE {
+  background: #dc3545;
+  color: #fff;
+}
+
+.ff-att-HALF_LEAVE {
+  background: #fd7e14;
+  color: #fff;
+}
+
+.ff-att-HOLIDAY_CLOSE {
+  background: #f9b115;
+  color: #212631;
+}
+
+.ff-att-WEEKEND {
+  background: #6c757d;
+  color: #fff;
+}
+
+.ff-att-empty {
+  background: var(--cui-tertiary-bg);
+  color: var(--cui-body-color);
+}
+
+.ff-att-native option {
+  color: #212631;
+  background: #fff;
+}
+
+@media (max-width: 991.98px) {
+  .ff-hrm-name {
+    min-width: 7.1rem;
+    max-width: 7.1rem;
+  }
+
+  .ff-hrm-avatar {
+    width: 1.4rem;
+    height: 1.4rem;
+    font-size: 0.65rem;
+  }
+
+  .ff-hrm-person .fw-semibold {
+    max-width: 4.6rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .ff-hrm-salary,
+  .ff-hrm-table thead .ff-hrm-salary {
+    position: static;
+    z-index: 0;
+    isolation: auto;
+    box-shadow: none;
+    min-width: 5.75rem;
+  }
+
+  .ff-hrm-day {
+    width: 4.9rem;
+    min-width: 4.9rem;
+    max-width: 4.9rem;
+  }
+}

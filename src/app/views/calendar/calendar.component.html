@@ -1,0 +1,83 @@
+<div class="ff-toolbar">
+  <div>
+    <h2 class="h4 mb-0 fw-bold">{{ 'nav.calendar' | t }}</h2>
+    @if (branchName) {
+      <div class="small text-body-secondary">{{ branchName }}</div>
+    }
+  </div>
+  <div class="d-flex gap-2 align-items-center">
+    <button cButton color="secondary" variant="ghost" (click)="prev()" aria-label="Previous month">
+      <svg cIcon name="cilChevronLeft"></svg>
+    </button>
+    <strong class="ff-cal-month">{{ cursor() | date:'MMMM yyyy' }}</strong>
+    <button cButton color="secondary" variant="ghost" (click)="next()" aria-label="Next month">
+      <svg cIcon name="cilChevronRight"></svg>
+    </button>
+    <button cButton color="primary" variant="outline" (click)="today()">{{ 'calendar.today' | t }}</button>
+  </div>
+</div>
+
+<div class="d-flex flex-wrap gap-3 mb-3 small">
+  <span class="ff-legend"><span class="ff-dot bg-success"></span>{{ 'calendar.paymentDue' | t }}</span>
+  <span class="ff-legend"><span class="ff-dot bg-primary"></span>{{ 'calendar.paymentMade' | t }}</span>
+  <span class="ff-legend"><span class="ff-dot bg-info"></span>{{ 'calendar.salaryDue' | t }}</span>
+  <span class="ff-legend"><span class="ff-dot bg-danger"></span>{{ 'calendar.expense' | t }}</span>
+</div>
+
+<c-row class="g-4">
+  <c-col lg="8">
+    <c-card>
+      <c-card-body class="p-3">
+        <div class="ff-cal">
+          @for (d of weekKeys; track d) {
+            <div class="ff-cal-dow">{{ d | t }}</div>
+          }
+          @for (cell of cells(); track cell.key) {
+            <button
+              type="button"
+              class="ff-cal-cell"
+              [class.muted]="!cell.inMonth"
+              [class.today]="isToday(cell.date)"
+              [class.selected]="isSelected(cell.date)"
+              (click)="pick(cell.date)"
+            >
+              <div class="ff-cal-day">{{ cell.date | date:'d' }}</div>
+              <div class="ff-cal-events">
+                @for (ev of eventsOn(cell.date); track ev.id) {
+                  <div [class]="'ff-cal-pill text-bg-' + typeClass(ev.type)">{{ ev.title }}</div>
+                }
+              </div>
+            </button>
+          }
+        </div>
+      </c-card-body>
+    </c-card>
+  </c-col>
+  <c-col lg="4">
+    <c-card class="h-100">
+      <c-card-header class="bg-body-tertiary">
+        <strong>{{ selected() | date:'EEEE, dd MMM yyyy' }}</strong>
+      </c-card-header>
+      <c-card-body>
+        @if (!selectedEvents().length) {
+          <div class="text-body-secondary">{{ 'calendar.noEvents' | t }}</div>
+        } @else {
+          <div class="d-flex flex-column gap-3">
+            @for (ev of selectedEvents(); track ev.id) {
+              <div class="ff-event-item">
+                <c-badge [color]="typeClass(ev.type)">{{ typeLabel(ev.type) | t }}</c-badge>
+                <div class="fw-semibold mt-1">{{ ev.title }}</div>
+                @if (ev.branchName && !branchId) {
+                  <div class="small text-body-secondary">{{ ev.branchName }}</div>
+                }
+                @if (ev.amount != null) {
+                  <div class="small">{{ ev.amount | inr }}</div>
+                }
+              </div>
+            }
+          </div>
+        }
+      </c-card-body>
+    </c-card>
+  </c-col>
+</c-row>
