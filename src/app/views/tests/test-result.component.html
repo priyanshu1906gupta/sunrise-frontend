@@ -1,0 +1,71 @@
+<div class="exam-shell">
+  <c-card class="exam-panel">
+    <c-card-body>
+      <div class="d-flex justify-content-between flex-wrap gap-2 mb-3">
+        <h1 class="h4 mb-0">{{ result()?.name || ('tests.viewResult' | t) }}</h1>
+        <a cButton color="primary" [routerLink]="['/tests', testId, 'review']">{{ 'tests.viewAnswers' | t }}</a>
+      </div>
+      @if (error()) {
+        <div class="text-danger mb-2">{{ error() }}</div>
+      }
+      @if (result(); as r) {
+        @if (r.status === 'AUTO_SUBMITTED') {
+          <p class="text-warning">{{ 'tests.autoSubmitted' | t }}</p>
+        }
+        <div class="row g-3 mb-4">
+          <div class="col-md-4"><strong>{{ 'tests.obtained' | t }}</strong><div>{{ r.marksObtained }} / {{ r.totalMarks }}</div></div>
+          <div class="col-md-4"><strong>{{ 'tests.rank' | t }}</strong><div>{{ r.rank }} / {{ r.totalAttempts }}</div></div>
+          <div class="col-md-4"><strong>{{ 'tests.timeSpent' | t }}</strong><div>{{ clock(r.timeSpentSeconds) }}</div></div>
+        </div>
+        <div class="table-responsive mb-4">
+          <table cTable hover>
+            <thead>
+              <tr>
+                <th>{{ 'tests.subject' | t }}</th>
+                <th>{{ 'tests.questions' | t }}</th>
+                <th>{{ 'tests.attempted' | t }}</th>
+                <th>{{ 'tests.wrong' | t }}</th>
+                <th>{{ 'tests.marks' | t }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (s of r.subjects; track s.subjectName) {
+                <tr>
+                  <td>{{ s.subjectName }}</td>
+                  <td>{{ s.total }}</td>
+                  <td>{{ s.attempted }}</td>
+                  <td>{{ s.wrong }}</td>
+                  <td>{{ s.marks }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+        <h2 class="h5">{{ 'tests.top10' | t }}</h2>
+        <div class="table-responsive">
+          <table cTable hover>
+            <thead>
+              <tr>
+                <th>{{ 'tests.rank' | t }}</th>
+                <th>{{ 'common.name' | t }}</th>
+                <th>{{ 'tests.marks' | t }}</th>
+                <th>{{ 'tests.timeSpent' | t }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (row of r.top10; track row.rank) {
+                <tr>
+                  <td>{{ row.rank }}</td>
+                  <td>{{ row.studentName }}</td>
+                  <td>{{ row.marksObtained }}</td>
+                  <td>{{ clock(row.timeSpentSeconds) }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+        <a cButton color="secondary" variant="outline" class="mt-3" routerLink="/tests">{{ 'tests.backToList' | t }}</a>
+      }
+    </c-card-body>
+  </c-card>
+</div>

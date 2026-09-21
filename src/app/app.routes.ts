@@ -1,5 +1,5 @@
 import { Routes } from '@angular/router';
-import { adminGuard, authGuard, guestGuard, studentGuard, teacherGuard } from './core/auth.guard';
+import { adminGuard, authGuard, guestGuard, studentGuard, teacherGuard, testAuthorGuard } from './core/auth.guard';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
@@ -7,6 +7,28 @@ export const routes: Routes = [
     path: 'authentication',
     canActivate: [guestGuard],
     loadChildren: () => import('./views/authentication/routes').then((m) => m.routes)
+  },
+  {
+    path: 'tests/:id/instructions',
+    canActivate: [authGuard, studentGuard],
+    loadComponent: () =>
+      import('./views/tests/test-instructions.component').then((m) => m.TestInstructionsComponent)
+  },
+  {
+    path: 'tests/:id/take',
+    canActivate: [authGuard, studentGuard],
+    loadComponent: () => import('./views/tests/test-exam.component').then((m) => m.TestExamComponent)
+  },
+  {
+    path: 'tests/:id/result',
+    canActivate: [authGuard, studentGuard],
+    loadComponent: () => import('./views/tests/test-result.component').then((m) => m.TestResultComponent)
+  },
+  {
+    path: 'tests/:id/review',
+    canActivate: [authGuard, studentGuard],
+    loadComponent: () => import('./views/tests/test-exam.component').then((m) => m.TestExamComponent),
+    data: { review: true }
   },
   {
     path: '',
@@ -57,6 +79,28 @@ export const routes: Routes = [
         loadComponent: () => import('./views/leave/leave.component').then((m) => m.LeaveComponent)
       },
       {
+        path: 'tests',
+        canActivate: [studentGuard],
+        loadComponent: () =>
+          import('./views/tests/student-tests.component').then((m) => m.StudentTestsComponent)
+      },
+      {
+        path: 'add-tests/new',
+        canActivate: [testAuthorGuard],
+        loadComponent: () =>
+          import('./views/tests/tests-create.component').then((m) => m.TestsCreateComponent)
+      },
+      {
+        path: 'add-tests/:id',
+        canActivate: [testAuthorGuard],
+        loadComponent: () => import('./views/tests/tests-view.component').then((m) => m.TestsViewComponent)
+      },
+      {
+        path: 'add-tests',
+        canActivate: [testAuthorGuard],
+        loadComponent: () => import('./views/tests/tests-list.component').then((m) => m.TestsListComponent)
+      },
+      {
         path: 'expenses',
         loadComponent: () => import('./views/expenses/expenses.component').then((m) => m.ExpensesComponent)
       },
@@ -98,6 +142,22 @@ export const routes: Routes = [
       {
         path: 'branches/:branchId/students',
         loadComponent: () => import('./views/members/members.component').then((m) => m.MembersComponent)
+      },
+      {
+        path: 'branches/:branchId/add-tests/new',
+        canActivate: [testAuthorGuard],
+        loadComponent: () =>
+          import('./views/tests/tests-create.component').then((m) => m.TestsCreateComponent)
+      },
+      {
+        path: 'branches/:branchId/add-tests/:id',
+        canActivate: [testAuthorGuard],
+        loadComponent: () => import('./views/tests/tests-view.component').then((m) => m.TestsViewComponent)
+      },
+      {
+        path: 'branches/:branchId/add-tests',
+        canActivate: [testAuthorGuard],
+        loadComponent: () => import('./views/tests/tests-list.component').then((m) => m.TestsListComponent)
       },
       {
         path: 'branches/:branchId/employees',

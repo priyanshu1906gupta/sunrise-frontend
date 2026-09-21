@@ -59,6 +59,21 @@
         </ng-template>
       </c-widget-stat-a>
     </c-col>
+    <c-col sm="6" xl class="d-flex">
+      @if (auth.isStudent()) {
+        <c-widget-stat-a class="ff-kpi w-100" color="info" [title]="'dashboard.testsGiven' | t" [value]="'' + (s['testsGiven'] ?? 0)">
+          <ng-template cTemplateId="widgetActionTemplate">
+            <svg cIcon name="cilSpreadsheet" size="xl"></svg>
+          </ng-template>
+        </c-widget-stat-a>
+      } @else {
+        <c-widget-stat-a class="ff-kpi w-100" color="info" [title]="'dashboard.testsAdded' | t" [value]="'' + (s['testsAdded'] ?? 0)">
+          <ng-template cTemplateId="widgetActionTemplate">
+            <svg cIcon name="cilSpreadsheet" size="xl"></svg>
+          </ng-template>
+        </c-widget-stat-a>
+      }
+    </c-col>
   </c-row>
 
   <c-row class="g-3 mb-3 ff-chart-row">

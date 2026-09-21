@@ -1,0 +1,76 @@
+<div class="exam-app">
+  @if (loading()) {
+    <div class="exam-loading">{{ 'common.search' | t }}…</div>
+  } @else if (error()) {
+    <div class="p-4 text-white">{{ error() }}</div>
+  } @else if (current(); as q) {
+    <header class="exam-top">
+      <div>
+        <div class="exam-name">{{ name() }}</div>
+        <div class="exam-qmeta">{{ questionTitle() }}</div>
+      </div>
+      <div class="exam-top-right">
+        @if (review) {
+          <div class="exam-qtime">{{ 'tests.timeOnQuestion' | t }}: {{ timeOnQuestion(q) }}</div>
+        } @else {
+          <div class="exam-timer">{{ 'tests.timer' | t }} {{ clock() }}</div>
+        }
+        <div class="exam-lang">
+          <button type="button" [class.active]="lang() === 'en'" (click)="setLang('en')">EN</button>
+          <button type="button" [class.active]="lang() === 'hi'" (click)="setLang('hi')">HI</button>
+        </div>
+      </div>
+    </header>
+
+    <div class="exam-body">
+      <section class="exam-main">
+        <div class="exam-subject">{{ q.subjectName }}</div>
+        <h2 class="exam-question">{{ questionText(q) }}</h2>
+        <div class="exam-options">
+          @for (opt of q.options; track $index; let i = $index) {
+            <button type="button" class="exam-opt" [class]="optionClass(q, i + 1)" (click)="select(i + 1)" [disabled]="review">
+              <span class="exam-letter">{{ optionLetter(i) }}</span>
+              <span>{{ optionText(opt) }}</span>
+            </button>
+          }
+        </div>
+        @if (review && q.answerDescription) {
+          <div class="exam-desc">{{ q.answerDescription }}</div>
+        }
+        @if (review) {
+          <div class="small mt-2">{{ 'tests.yourAnswer' | t }}: {{ q.selectedIndex || '—' }} · {{ 'tests.correctAnswer' | t }}: {{ q.correctIndex }}</div>
+        }
+      </section>
+      <aside class="exam-palette">
+        <div class="exam-palette-grid">
+          @for (item of questions(); track item.id; let i = $index) {
+            <button type="button" [class]="paletteClass(item)" (click)="go(i)">{{ i + 1 }}</button>
+          }
+        </div>
+        <ul class="exam-legend">
+          <li><span class="p-idle"></span>{{ 'tests.paletteNotVisited' | t }}</li>
+          <li><span class="p-not-answered"></span>{{ 'tests.paletteNotAnswered' | t }}</li>
+          <li><span class="p-answered"></span>{{ 'tests.paletteAnswered' | t }}</li>
+          <li><span class="p-review"></span>{{ 'tests.paletteReview' | t }}</li>
+          <li><span class="p-answered-review"></span>{{ 'tests.paletteAnsweredReview' | t }}</li>
+        </ul>
+      </aside>
+    </div>
+
+    <footer class="exam-actions">
+      @if (!review) {
+        <button cButton color="warning" type="button" (click)="markReview()">{{ 'tests.markReview' | t }}</button>
+        <button cButton color="secondary" variant="outline" type="button" (click)="clear()">{{ 'tests.clear' | t }}</button>
+      }
+      <button cButton color="secondary" type="button" [disabled]="currentIndex() === 0" (click)="previous()">{{ 'tests.previous' | t }}</button>
+      <button cButton color="info" type="button" [disabled]="currentIndex() >= questions().length - 1" (click)="saveNext()">
+        {{ review ? ('common.next' | t) : ('tests.saveNext' | t) }}
+      </button>
+      @if (!review) {
+        <button cButton color="success" type="button" (click)="submitClicked()">{{ 'tests.submitTest' | t }}</button>
+      } @else {
+        <a cButton color="primary" [routerLink]="['/tests', testId, 'result']">{{ 'tests.viewResult' | t }}</a>
+      }
+    </footer>
+  }
+</div>

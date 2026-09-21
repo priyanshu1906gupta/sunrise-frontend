@@ -1,0 +1,37 @@
+<div class="ff-toolbar">
+  <h2 class="h4 mb-0">{{ 'nav.test' | t }}</h2>
+</div>
+
+@if (error()) {
+  <div class="text-danger mb-2">{{ error() }}</div>
+}
+
+@if (!tests().length) {
+  <app-empty />
+} @else {
+  <c-row class="g-3">
+    @for (t of tests(); track t.id) {
+      <c-col sm="6" xl="4">
+        <c-card>
+          <c-card-body>
+            <h3 class="h5 mb-1">{{ t.name }}</h3>
+            <div class="small text-body-secondary mb-2">{{ t.courseName }}</div>
+            <div class="small">{{ 'tests.duration' | t }}: {{ t.durationMinutes }}</div>
+            <div class="small">{{ 'tests.questions' | t }}: {{ t.questionCount }}</div>
+            <div class="small">{{ 'tests.subjects' | t }}: {{ t.subjects.join(', ') }}</div>
+            <div class="small mb-3">{{ 'tests.totalMarks' | t }}: {{ t.totalMarks }}</div>
+            <button cButton color="primary" type="button" (click)="open(t)">
+              @if (t.attemptStatus === 'SUBMITTED' || t.attemptStatus === 'AUTO_SUBMITTED') {
+                {{ 'tests.viewResult' | t }}
+              } @else if (t.attemptStatus === 'IN_PROGRESS') {
+                {{ 'tests.continue' | t }}
+              } @else {
+                {{ 'tests.start' | t }}
+              }
+            </button>
+          </c-card-body>
+        </c-card>
+      </c-col>
+    }
+  </c-row>
+}

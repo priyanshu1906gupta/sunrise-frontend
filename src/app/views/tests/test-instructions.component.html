@@ -1,0 +1,36 @@
+<div class="exam-shell exam-instructions">
+  <c-card class="exam-panel">
+    <c-card-body>
+      <h1 class="h4 mb-3">{{ 'tests.instructionsTitle' | t }}</h1>
+      @if (error()) {
+        <div class="text-danger mb-2">{{ error() }}</div>
+      }
+      @if (test(); as t) {
+        <div class="mb-3">
+          <label class="form-label">{{ 'tests.language' | t }}</label>
+          <select class="form-select" style="max-width:200px" [ngModel]="lang()" (ngModelChange)="lang.set($event)">
+            <option value="en">{{ 'lang.en' | t }}</option>
+            <option value="hi">{{ 'lang.hi' | t }}</option>
+          </select>
+        </div>
+        <ul class="mb-3">
+          <li>{{ 'tests.course' | t }}: {{ t.courseName }}</li>
+          <li>{{ 'tests.subjects' | t }}: {{ t.subjects.join(', ') }}</li>
+          <li>{{ 'tests.duration' | t }}: {{ t.durationMinutes }}</li>
+          <li>{{ 'tests.totalMarks' | t }}: {{ t.totalMarks }}</li>
+          <li>{{ 'tests.questions' | t }}: {{ t.questionCount }}</li>
+          <li>{{ 'tests.bilingual' | t }}</li>
+          <li>{{ negativeText() }}</li>
+          <li>{{ 'tests.instr1' | t }}</li>
+          <li>{{ 'tests.instr2' | t }}</li>
+          <li>{{ 'tests.instr3' | t }}</li>
+        </ul>
+        <div class="form-check mb-3">
+          <input id="accept" class="form-check-input" type="checkbox" [ngModel]="accepted()" (ngModelChange)="accepted.set($event)" />
+          <label class="form-check-label" for="accept">{{ 'tests.accept' | t }}</label>
+        </div>
+        <button cButton color="primary" type="button" [disabled]="!accepted()" (click)="start()">{{ 'tests.startTest' | t }}</button>
+      }
+    </c-card-body>
+  </c-card>
+</div>

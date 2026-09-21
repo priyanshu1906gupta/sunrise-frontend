@@ -1,0 +1,78 @@
+<div class="ff-toolbar">
+  <h2 class="h4 mb-0">{{ test()?.name || ('nav.addTest' | t) }}</h2>
+  <a cButton color="secondary" variant="outline" [routerLink]="backLink">{{ 'common.cancel' | t }}</a>
+</div>
+
+@if (error()) {
+  <div class="text-danger mb-2">{{ error() }}</div>
+}
+
+@if (test(); as t) {
+  <p class="text-body-secondary">
+    {{ t.courseName }} · {{ t.durationMinutes }} {{ 'tests.duration' | t }} ·
+    {{ t.questionCount }} {{ 'tests.questions' | t }} · {{ t.totalMarks }} {{ 'tests.totalMarks' | t }}
+  </p>
+
+  <div class="d-flex flex-wrap gap-2 mb-3">
+    @for (s of t.subjects; track s) {
+      <button cButton type="button" size="sm" [color]="subject() === s ? 'primary' : 'secondary'" [variant]="subject() === s ? undefined : 'outline'" (click)="subject.set(s)">
+        {{ s }}
+      </button>
+    }
+  </div>
+
+  <c-card class="mb-4">
+    <div class="table-responsive">
+      <table cTable hover class="mb-0">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>{{ 'tests.questionEn' | t }}</th>
+            <th>{{ 'tests.questionHi' | t }}</th>
+            <th>{{ 'tests.answerNumber' | t }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (q of questions(); track q.id) {
+            <tr>
+              <td>{{ q.sortOrder }}</td>
+              <td>{{ q.questionEn }}</td>
+              <td>{{ q.questionHi }}</td>
+              <td>{{ q.correctIndex }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </c-card>
+
+  <h3 class="h5">{{ 'tests.students' | t }}</h3>
+  @if (!t.attempts.length) {
+    <p class="text-body-secondary">{{ 'tests.noAttempts' | t }}</p>
+  } @else {
+    <c-card>
+      <div class="table-responsive">
+        <table cTable hover class="mb-0">
+          <thead>
+            <tr>
+              <th>{{ 'tests.rank' | t }}</th>
+              <th>{{ 'common.name' | t }}</th>
+              <th>{{ 'tests.marks' | t }}</th>
+              <th>{{ 'tests.timeSpent' | t }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (a of t.attempts; track a.rank) {
+              <tr>
+                <td>{{ a.rank }}</td>
+                <td>{{ a.studentName }}</td>
+                <td>{{ a.marksObtained }}</td>
+                <td>{{ clock(a.timeSpentSeconds) }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </c-card>
+  }
+}

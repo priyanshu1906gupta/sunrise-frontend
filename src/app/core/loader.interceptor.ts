@@ -6,7 +6,7 @@ import { PhotoPickerService } from './photo-picker.service';
 
 export const loaderInterceptor: HttpInterceptorFn = (req, next) => {
   const picker = inject(PhotoPickerService);
-  if (req.url.includes('/assets/i18n/') || req.url.includes('/files') || req.url.includes('/auth/refresh') || req.url.includes('/notifications') || picker.isBusy()) {
+  if (req.url.includes('/assets/i18n/') || req.url.includes('/files') || req.url.includes('/auth/refresh') || req.url.includes('/notifications') || req.url.includes('/heartbeat') || picker.isBusy()) {
     return next(req);
   }
   const loader = inject(LoaderService);

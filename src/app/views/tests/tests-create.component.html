@@ -1,0 +1,104 @@
+<div class="ff-toolbar">
+  <h2 class="h4 mb-0">{{ 'tests.add' | t }}</h2>
+  <a cButton color="secondary" variant="outline" [routerLink]="backLink">{{ 'common.cancel' | t }}</a>
+</div>
+
+<c-card class="mb-3">
+  <c-card-body>
+    <div class="row g-3">
+      <div class="col-md-6">
+        <label cLabel>{{ 'tests.name' | t }}</label>
+        <input cFormControl [ngModel]="name()" (ngModelChange)="name.set($event)" />
+      </div>
+      <div class="col-md-6">
+        <label cLabel>{{ 'tests.course' | t }}</label>
+        <select class="form-select" [ngModel]="courseId()" (ngModelChange)="courseId.set($event)">
+          <option value="">{{ 'tests.needCourse' | t }}</option>
+          @for (c of courses(); track c.id) {
+            <option [value]="c.id">{{ c.name }}</option>
+          }
+        </select>
+      </div>
+      <div class="col-md-4">
+        <label cLabel>{{ 'tests.duration' | t }}</label>
+        <input cFormControl type="number" min="1" [ngModel]="durationMinutes()" (ngModelChange)="durationMinutes.set(+$event)" />
+      </div>
+      <div class="col-md-4">
+        <label cLabel>{{ 'tests.questions' | t }}</label>
+        <input cFormControl type="number" min="1" [ngModel]="questionCount()" (ngModelChange)="questionCount.set(+$event)" />
+      </div>
+      <div class="col-md-4">
+        <label cLabel>{{ 'tests.negative' | t }}</label>
+        <div class="d-flex align-items-center gap-3 mt-2">
+          <div class="form-check form-switch mb-0">
+            <input class="form-check-input" type="checkbox" [ngModel]="negativeEnabled()" (ngModelChange)="negativeEnabled.set($event)" />
+          </div>
+          @if (negativeEnabled()) {
+            <select class="form-select form-select-sm" style="width:90px" [ngModel]="negativeFraction()" (ngModelChange)="negativeFraction.set($event)">
+              <option value="HALF">{{ 'tests.negativeHalf' | t }}</option>
+              <option value="THIRD">{{ 'tests.negativeThird' | t }}</option>
+              <option value="FOURTH">{{ 'tests.negativeFourth' | t }}</option>
+            </select>
+          }
+        </div>
+      </div>
+    </div>
+    <div class="d-flex flex-wrap gap-2 mt-3">
+      <button cButton color="secondary" variant="outline" type="button" (click)="downloadSample()">{{ 'tests.downloadSample' | t }}</button>
+      <input #fileInput class="form-control" style="max-width:280px" type="file" accept=".xlsx,.xls" (change)="onFile($event)" />
+    </div>
+  </c-card-body>
+</c-card>
+
+@if (rows().length) {
+  <h3 class="h6">{{ 'tests.preview' | t }}</h3>
+  <c-card class="mb-3">
+    <div class="table-responsive">
+      <table cTable hover class="mb-0">
+        <thead>
+          <tr>
+            <th>{{ 'tests.subject' | t }}</th>
+            <th>{{ 'tests.questionEn' | t }}</th>
+            <th>{{ 'tests.questionHi' | t }}</th>
+            <th>{{ 'tests.answerNumber' | t }}</th>
+            <th>{{ 'tests.answerDescription' | t }}</th>
+            <th>1 EN</th>
+            <th>1 HI</th>
+            <th>2 EN</th>
+            <th>2 HI</th>
+            <th>3 EN</th>
+            <th>3 HI</th>
+            <th>4 EN</th>
+            <th>4 HI</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (row of rows(); track $index; let i = $index) {
+            <tr>
+              <td><input cFormControl [ngModel]="row.subjectName" (ngModelChange)="updateRow(i, 'subjectName', $event)" /></td>
+              <td><input cFormControl [ngModel]="row.questionEn" (ngModelChange)="updateRow(i, 'questionEn', $event)" /></td>
+              <td><input cFormControl [ngModel]="row.questionHi" (ngModelChange)="updateRow(i, 'questionHi', $event)" /></td>
+              <td><input cFormControl type="number" min="1" max="6" [ngModel]="row.correctIndex" (ngModelChange)="updateRow(i, 'correctIndex', +$event)" /></td>
+              <td><input cFormControl [ngModel]="row.answerDescription" (ngModelChange)="updateRow(i, 'answerDescription', $event)" /></td>
+              <td><input cFormControl [ngModel]="row.opt1en" (ngModelChange)="updateRow(i, 'opt1en', $event)" /></td>
+              <td><input cFormControl [ngModel]="row.opt1hi" (ngModelChange)="updateRow(i, 'opt1hi', $event)" /></td>
+              <td><input cFormControl [ngModel]="row.opt2en" (ngModelChange)="updateRow(i, 'opt2en', $event)" /></td>
+              <td><input cFormControl [ngModel]="row.opt2hi" (ngModelChange)="updateRow(i, 'opt2hi', $event)" /></td>
+              <td><input cFormControl [ngModel]="row.opt3en" (ngModelChange)="updateRow(i, 'opt3en', $event)" /></td>
+              <td><input cFormControl [ngModel]="row.opt3hi" (ngModelChange)="updateRow(i, 'opt3hi', $event)" /></td>
+              <td><input cFormControl [ngModel]="row.opt4en" (ngModelChange)="updateRow(i, 'opt4en', $event)" /></td>
+              <td><input cFormControl [ngModel]="row.opt4hi" (ngModelChange)="updateRow(i, 'opt4hi', $event)" /></td>
+              <td>
+                <button cButton color="danger" variant="ghost" size="sm" type="button" (click)="removeRow(i)">
+                  <svg cIcon name="cilTrash"></svg>
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </c-card>
+  <button cButton color="primary" type="button" [disabled]="busy()" (click)="submit()">{{ 'common.submit' | t }}</button>
+}

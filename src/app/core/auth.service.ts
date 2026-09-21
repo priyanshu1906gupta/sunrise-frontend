@@ -42,6 +42,9 @@ export class AuthService {
   readonly isTeacher = computed(() => this.me()?.role === 'TEACHER');
   readonly isStudent = computed(() => this.me()?.role === 'STUDENT');
   readonly canWrite = computed(() => this.me()?.role === 'ADMIN' || this.me()?.role === 'MANAGER');
+  readonly canAuthorTests = computed(
+    () => this.me()?.role === 'ADMIN' || this.me()?.role === 'MANAGER' || this.me()?.role === 'TEACHER'
+  );
   readonly isMultiBranch = computed(() => (this.me()?.company.branchCount ?? 0) > 1);
   readonly branches = computed(() => this.me()?.branches ?? []);
   readonly brandLogo = computed(() => {

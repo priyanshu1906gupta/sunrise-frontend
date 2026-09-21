@@ -1,0 +1,57 @@
+<div class="ff-toolbar">
+  <h2 class="h4 mb-0">{{ 'nav.addTest' | t }}</h2>
+  <div class="d-flex gap-2 flex-wrap align-items-center">
+    <select class="form-select form-select-sm" style="width:220px" [value]="courseFilter()" (change)="courseFilter.set($any($event.target).value)">
+      <option value="">{{ 'common.all' | t }}</option>
+      @for (c of courses(); track c.id) {
+        <option [value]="c.id">{{ c.name }}</option>
+      }
+    </select>
+    <a cButton color="primary" [routerLink]="newLink">{{ 'tests.add' | t }}</a>
+  </div>
+</div>
+
+@if (error()) {
+  <div class="text-danger mb-2">{{ error() }}</div>
+}
+
+@if (!grouped().length) {
+  <app-empty />
+} @else {
+  @for (group of grouped(); track group.courseId) {
+    <h3 class="h6 mt-3 mb-2">{{ group.courseName }}</h3>
+    <c-card class="mb-3">
+      <div class="table-responsive">
+        <table cTable hover class="mb-0">
+          <thead>
+            <tr>
+              <th>{{ 'tests.name' | t }}</th>
+              <th>{{ 'tests.duration' | t }}</th>
+              <th>{{ 'tests.questions' | t }}</th>
+              <th>{{ 'tests.totalMarks' | t }}</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (t of group.tests; track t.id) {
+              <tr>
+                <td>{{ t.name }}</td>
+                <td>{{ t.durationMinutes }}</td>
+                <td>{{ t.questionCount }}</td>
+                <td>{{ t.totalMarks }}</td>
+                <td class="text-nowrap">
+                  <a cButton color="primary" variant="ghost" size="sm" class="ff-icon-btn" [routerLink]="viewLink(t.id)">
+                    <svg cIcon name="eye"></svg>
+                  </a>
+                  <button cButton color="danger" variant="ghost" size="sm" class="ff-icon-btn" type="button" (click)="remove(t.id)">
+                    <svg cIcon name="cilTrash"></svg>
+                  </button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </c-card>
+  }
+}

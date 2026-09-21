@@ -74,3 +74,13 @@ export const studentGuard: CanActivateFn = () => {
   }
   return router.createUrlTree(['/dashboard']);
 };
+
+export const testAuthorGuard: CanActivateFn = () => {
+  const auth = inject(AuthService);
+  const router = inject(Router);
+  const role = auth.me()?.role;
+  if (role === 'ADMIN' || role === 'MANAGER' || role === 'TEACHER') {
+    return true;
+  }
+  return router.createUrlTree(['/dashboard']);
+};
