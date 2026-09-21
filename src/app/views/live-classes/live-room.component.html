@@ -1,0 +1,69 @@
+<div class="ff-toolbar">
+  <div>
+    <h2 class="h4 mb-0">{{ session()?.courseName || ('nav.liveClass' | t) }}</h2>
+    @if (session(); as row) {
+      <div class="small text-body-secondary">{{ row.subjectName }} · {{ row.hostName }}</div>
+    }
+  </div>
+  <div class="d-flex gap-2">
+    @if (isHost()) {
+      <button cButton color="danger" type="button" (click)="confirmEnd()">{{ 'live.end' | t }}</button>
+    }
+    <button cButton color="secondary" variant="outline" type="button" (click)="back()">{{ 'live.back' | t }}</button>
+  </div>
+</div>
+
+@if (error()) {
+  <div class="text-danger mb-2">{{ error() }}</div>
+}
+
+@if (insecure()) {
+  <div class="alert alert-warning py-2">{{ 'live.needHttps' | t }}</div>
+}
+
+<div class="live-room">
+  <div #stage class="live-stage" [class.is-full]="fullScreen()">
+    <video #stageVideo class="live-video" autoplay playsinline [class.d-none]="!hasStream()"></video>
+    @if (!hasStream()) {
+      <div class="live-wait">{{ status() || ('live.connecting' | t) }}</div>
+    }
+    @if (hasStream() && isHost()) {
+      <span class="live-badge">{{ 'live.liveNow' | t }}</span>
+    }
+    @if (!isHost()) {
+      <button class="live-fs-btn" type="button" (click)="toggleFull()">
+        {{ fullScreen() ? ('live.exitFullscreen' | t) : ('live.fullscreen' | t) }}
+      </button>
+    }
+  </div>
+  <aside class="live-chat">
+    <h3 class="h6 mb-2">{{ 'live.chat' | t }}</h3>
+    <div class="live-chat-list">
+      @if (!messages().length) {
+        <div class="small text-body-secondary">{{ 'live.noChat' | t }}</div>
+      }
+      @for (m of messages(); track m.id) {
+        <div class="live-chat-item">
+          <div class="small fw-semibold">{{ m.studentName }}</div>
+          <div>{{ m.text }}</div>
+        </div>
+      }
+    </div>
+    @if (!isHost()) {
+      <form class="live-chat-form" (submit)="$event.preventDefault(); send()">
+        <input
+          class="form-control"
+          [placeholder]="'live.chatPlaceholder' | t"
+          [value]="draft()"
+          (input)="draft.set($any($event.target).value)"
+          maxlength="400"
+        />
+        <button cButton color="primary" type="submit" [disabled]="sending() || !draft().trim()">
+          {{ 'live.send' | t }}
+        </button>
+      </form>
+    } @else {
+      <div class="small text-body-secondary">{{ 'live.teacherChatHint' | t }}</div>
+    }
+  </aside>
+</div>

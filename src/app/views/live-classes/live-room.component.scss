@@ -1,0 +1,126 @@
+.live-room {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  gap: 1rem;
+}
+
+.live-stage {
+  position: relative;
+  min-height: 220px;
+  max-height: 280px;
+  background: #111;
+  border-radius: 0.5rem;
+  overflow: hidden;
+}
+
+.live-video {
+  width: 100%;
+  height: 100%;
+  min-height: 220px;
+  max-height: 280px;
+  object-fit: contain;
+  background: #111;
+}
+
+.live-wait {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  padding: 1.5rem;
+  text-align: center;
+}
+
+.live-badge {
+  position: absolute;
+  top: 0.75rem;
+  left: 0.75rem;
+  background: #e55353;
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  padding: 0.2rem 0.5rem;
+  border-radius: 0.25rem;
+}
+
+.live-fs-btn {
+  position: absolute;
+  right: 0.6rem;
+  bottom: 0.6rem;
+  z-index: 2;
+  border: 0;
+  border-radius: 0.35rem;
+  background: rgba(0, 0, 0, 0.65);
+  color: #fff;
+  font-size: 0.8rem;
+  padding: 0.35rem 0.65rem;
+}
+
+.live-stage.is-full {
+  position: fixed;
+  inset: 0;
+  z-index: 4000;
+  min-height: 100%;
+  max-height: none;
+  border-radius: 0;
+  background: #000;
+}
+
+.live-stage.is-full .live-video {
+  min-height: 100%;
+  max-height: none;
+  height: 100%;
+  width: 100%;
+  object-fit: cover;
+}
+
+.live-stage.is-full .live-fs-btn {
+  right: 1rem;
+  bottom: 1rem;
+  font-size: 0.95rem;
+  padding: 0.5rem 0.9rem;
+}
+
+.live-chat {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--cui-border-color, #d8dbe0);
+  border-radius: 0.5rem;
+  padding: 0.75rem;
+  min-height: 280px;
+  background: var(--cui-tertiary-bg, #fff);
+}
+
+.live-chat-list {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  margin-bottom: 0.75rem;
+}
+
+.live-chat-item {
+  font-size: 0.85rem;
+  word-break: break-word;
+}
+
+.live-chat-form {
+  display: flex;
+  gap: 0.5rem;
+}
+
+@media (max-width: 768px) {
+  .live-room {
+    grid-template-columns: 1fr;
+  }
+
+  .live-stage,
+  .live-video {
+    min-height: 180px;
+    max-height: 220px;
+  }
+}

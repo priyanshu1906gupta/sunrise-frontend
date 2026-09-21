@@ -164,14 +164,16 @@ export class DefaultHeaderComponent extends HeaderComponent {
   }
 
   iconFor(type: string): string {
-    if (type === 'MEMBER_PAYMENT') return 'cilPeople';
+    if (type === 'MEMBER_PAYMENT' || type === 'STUDENT_PAYMENT') return 'cilPeople';
     if (type === 'EMPLOYEE_SALARY') return 'cilDollar';
+    if (type === 'LIVE_CLASS') return 'cilMediaPlay';
     return 'cilNotes';
   }
 
   toneFor(type: string): string {
-    if (type === 'MEMBER_PAYMENT') return 'primary';
+    if (type === 'MEMBER_PAYMENT' || type === 'STUDENT_PAYMENT') return 'primary';
     if (type === 'EMPLOYEE_SALARY') return 'info';
+    if (type === 'LIVE_CLASS') return 'danger';
     return 'warning';
   }
 
@@ -187,10 +189,18 @@ export class DefaultHeaderComponent extends HeaderComponent {
       });
     }
     const prefix = n.branchId ? `/branches/${n.branchId}` : '';
-    if (n.type === 'MEMBER_PAYMENT') {
+    if (n.type === 'MEMBER_PAYMENT' || n.type === 'STUDENT_PAYMENT') {
       void this.router.navigateByUrl(n.branchId ? `${prefix}/students` : '/students');
     } else if (n.type === 'EMPLOYEE_SALARY') {
       void this.router.navigateByUrl(n.branchId ? `${prefix}/employees` : '/employees');
+    } else if (n.type === 'LIVE_CLASS') {
+      if (this.auth.isStudent() || !n.branchId) {
+        void this.router.navigateByUrl(n.entityId ? `/live-classes/${n.entityId}` : '/live-classes');
+      } else {
+        void this.router.navigateByUrl(
+          n.entityId ? `${prefix}/live-classes/${n.entityId}` : `${prefix}/live-classes`
+        );
+      }
     } else {
       void this.router.navigateByUrl(n.branchId ? `${prefix}/expenses` : '/expenses');
     }

@@ -25,6 +25,13 @@ export class NativeShellService {
         const platform = Capacitor.getPlatform() === 'ios' ? 'IOS' : 'ANDROID';
         this.api.post('/devices', { token: token.value, platform }).subscribe({ error: () => undefined });
       });
+      await PushNotifications.addListener('pushNotificationActionPerformed', (action) => {
+        const data = (action.notification.data || {}) as { type?: string; liveSessionId?: string; url?: string };
+        if (data.type === 'LIVE_CLASS') {
+          const path = data.url || (data.liveSessionId ? `/live-classes/${data.liveSessionId}` : '/live-classes');
+          window.location.hash = `#${path.startsWith('/') ? path : `/${path}`}`;
+        }
+      });
     } catch {
       /* web / electron without Capacitor runtime */
     }

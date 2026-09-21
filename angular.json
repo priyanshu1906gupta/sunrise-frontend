@@ -51,7 +51,9 @@
             "scripts": [],
             "allowedCommonJsDependencies": [
               "sweetalert2",
-              "xlsx"
+              "xlsx",
+              "socket.io-client",
+              "engine.io-client"
             ],
             "stylePreprocessorOptions": {
               "sass": {
@@ -115,7 +117,9 @@
         "serve": {
           "builder": "@angular/build:dev-server",
           "options": {
-            "host": "0.0.0.0"
+            "host": "0.0.0.0",
+            "ssl": true,
+            "proxyConfig": "proxy.conf.json"
           },
           "configurations": {
             "production": {

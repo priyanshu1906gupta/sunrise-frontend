@@ -101,6 +101,16 @@ export const routes: Routes = [
         loadComponent: () => import('./views/tests/tests-list.component').then((m) => m.TestsListComponent)
       },
       {
+        path: 'live-classes/:sessionId',
+        loadComponent: () =>
+          import('./views/live-classes/live-room.component').then((m) => m.LiveRoomComponent)
+      },
+      {
+        path: 'live-classes',
+        loadComponent: () =>
+          import('./views/live-classes/live-classes.component').then((m) => m.LiveClassesComponent)
+      },
+      {
         path: 'expenses',
         loadComponent: () => import('./views/expenses/expenses.component').then((m) => m.ExpensesComponent)
       },
@@ -158,6 +168,16 @@ export const routes: Routes = [
         path: 'branches/:branchId/add-tests',
         canActivate: [testAuthorGuard],
         loadComponent: () => import('./views/tests/tests-list.component').then((m) => m.TestsListComponent)
+      },
+      {
+        path: 'branches/:branchId/live-classes/:sessionId',
+        loadComponent: () =>
+          import('./views/live-classes/live-room.component').then((m) => m.LiveRoomComponent)
+      },
+      {
+        path: 'branches/:branchId/live-classes',
+        loadComponent: () =>
+          import('./views/live-classes/live-classes.component').then((m) => m.LiveClassesComponent)
       },
       {
         path: 'branches/:branchId/employees',

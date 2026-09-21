@@ -1,0 +1,56 @@
+<div class="ff-toolbar">
+  <h2 class="h4 mb-0">{{ 'nav.liveClass' | t }}</h2>
+</div>
+
+@if (error()) {
+  <div class="text-danger mb-2">{{ error() }}</div>
+}
+
+@if (!courses().length) {
+  <app-empty />
+} @else {
+  <div class="mb-3">
+    <label class="form-label" for="live-course">{{ 'live.selectCourse' | t }}</label>
+    <select id="live-course" class="form-select" style="max-width: 360px" [value]="courseId()" (change)="selectCourse($any($event.target).value)">
+      @for (c of courses(); track c.id) {
+        <option [value]="c.id">{{ c.name }}</option>
+      }
+    </select>
+  </div>
+
+  @if (selected(); as course) {
+    @if (!course.subjects.length) {
+      <app-empty />
+    } @else {
+      <c-row class="g-3">
+        @for (s of course.subjects; track s.id) {
+          <c-col sm="6" xl="4">
+            <c-card>
+              <c-card-body>
+                <div class="d-flex align-items-center gap-2 mb-2">
+                  <h3 class="h5 mb-0">{{ s.name }}</h3>
+                  @if (s.liveSessionId) {
+                    <span class="live-dot" [attr.title]="'live.liveNow' | t"></span>
+                    <span class="small text-danger fw-semibold">{{ 'live.liveNow' | t }}</span>
+                  }
+                </div>
+                <div class="small text-body-secondary mb-3">{{ course.name }}</div>
+                @if (isStaff()) {
+                  <button cButton color="danger" type="button" [disabled]="starting()" (click)="goLive(s.id)">
+                    {{ s.liveSessionId ? ('live.resume' | t) : ('live.goLive' | t) }}
+                  </button>
+                } @else if (s.liveSessionId) {
+                  <button cButton color="primary" type="button" (click)="join(s.liveSessionId)">
+                    {{ 'live.join' | t }}
+                  </button>
+                } @else {
+                  <button cButton color="secondary" type="button" disabled>{{ 'live.notLive' | t }}</button>
+                }
+              </c-card-body>
+            </c-card>
+          </c-col>
+        }
+      </c-row>
+    }
+  }
+}
