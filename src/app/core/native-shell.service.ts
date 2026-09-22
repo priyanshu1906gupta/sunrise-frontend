@@ -33,6 +33,8 @@ export class NativeShellService {
     try {
       const { Capacitor } = await import('@capacitor/core');
       if (!Capacitor.isNativePlatform()) return;
+      const { environment } = await import('../../environments/environment');
+      if (environment.pushNotifications === false) return;
       const { PushNotifications } = await import('@capacitor/push-notifications');
       const perm = await PushNotifications.requestPermissions();
       if (perm.receive !== 'granted') return;

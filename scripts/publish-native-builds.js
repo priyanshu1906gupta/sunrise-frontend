@@ -111,6 +111,7 @@ function applyNativeApiUrl() {
     "  apiUrl: " +
     JSON.stringify(apiUrl) +
     ",\n" +
+    "  pushNotifications: false,\n" +
     "};\n";
   fs.writeFileSync(envFile, next);
   log("set native apiUrl to " + apiUrl);
@@ -162,6 +163,7 @@ function main() {
   applyNativeApiUrl();
 
   run("npm", ["run", "build:native"], frontendRoot, false);
+  run("node", ["scripts/generate-android-icons.js"], frontendRoot, true);
 
   let android = null;
   const gradlew = process.platform === "win32" ? "gradlew.bat" : "./gradlew";
