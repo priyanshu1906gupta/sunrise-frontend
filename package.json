@@ -16,7 +16,8 @@
     "cap:android": "npx cap open android",
     "cap:ios": "npx cap open ios",
     "electron:start": "ng build --configuration native && electron electron/main.js",
-    "electron:build": "ng build --configuration native && electron-builder"
+    "electron:build": "ng build --configuration native && electron-builder",
+    "publish:native": "node scripts/publish-native-builds.js"
   },
   "build": {
     "appId": "com.sunrisecoaching.khargone",

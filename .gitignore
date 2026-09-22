@@ -51,6 +51,9 @@ google-services.json
 GoogleService-Info.plist
 *.jks
 *.keystore
+*.apk
+*.exe
+*.ipa
 
 # System files
 .DS_Store
