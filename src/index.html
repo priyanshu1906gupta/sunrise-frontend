@@ -2,6 +2,16 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
+  <script>
+    (function () {
+      var path = location.pathname || "/";
+      var hash = location.hash || "";
+      if (path.indexOf("/app") === 0 || path.indexOf("/site") === 0 || path.indexOf("/assets/site") === 0) return;
+      if (path !== "/" && path !== "/index.html") return;
+      if (hash && hash !== "#" && hash !== "#/") return;
+      location.replace("/site/index.html");
+    })();
+  </script>
   <base href="./">
   <meta content="width=device-width, initial-scale=1, shrink-to-fit=no" name="viewport" />
   <meta http-equiv="Permissions-Policy" content="camera=*, microphone=*, display-capture=*, fullscreen=*" />

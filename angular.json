@@ -39,6 +39,11 @@
                 "output": "/assets/"
               },
               {
+                "glob": "**/*",
+                "input": "src/site/",
+                "output": "/site/"
+              },
+              {
                 "glob": "favicon.ico",
                 "input": "src/assets/",
                 "output": "/"
@@ -124,7 +129,7 @@
           "options": {
             "host": "0.0.0.0",
             "ssl": true,
-            "proxyConfig": "proxy.conf.json"
+            "proxyConfig": "proxy.conf.js"
           },
           "configurations": {
             "production": {
