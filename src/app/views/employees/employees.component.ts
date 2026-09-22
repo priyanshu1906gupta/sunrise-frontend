@@ -263,6 +263,28 @@ export class EmployeesComponent {
     });
   }
 
+  async deactivate(id: string): Promise<void> {
+    if (!(await this.confirm.ask(this.i18n.t('employees.deactivateConfirm')))) return;
+    this.api.post(`/employees/${id}/login-status`, { status: 'INACTIVE' }).subscribe({
+      next: () => {
+        this.alerts.success(this.i18n.t('employees.deactivatedLogin'));
+        this.load(this.page());
+      },
+      error: (e) => this.alerts.error(apiErrorMessage(e))
+    });
+  }
+
+  async activate(id: string): Promise<void> {
+    if (!(await this.confirm.ask(this.i18n.t('employees.activateConfirm')))) return;
+    this.api.post(`/employees/${id}/login-status`, { status: 'ACTIVE' }).subscribe({
+      next: () => {
+        this.alerts.success(this.i18n.t('employees.activatedLogin'));
+        this.load(this.page());
+      },
+      error: (e) => this.alerts.error(apiErrorMessage(e))
+    });
+  }
+
   canResetManager(row: { role?: string }): boolean {
     return this.auth.isAdmin() && !this.routeBranchId && (row.role === 'MANAGER' || row.role === 'TEACHER');
   }

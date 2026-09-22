@@ -477,6 +477,28 @@ export class MembersComponent {
     });
   }
 
+  async deactivate(id: string): Promise<void> {
+    if (!(await this.confirm.ask(this.i18n.t('members.deactivateConfirm')))) return;
+    this.api.post(`/students/${id}/login-status`, { status: 'INACTIVE' }).subscribe({
+      next: () => {
+        this.alerts.success(this.i18n.t('members.deactivatedLogin'));
+        this.load(this.page());
+      },
+      error: (e) => this.alerts.error(apiErrorMessage(e))
+    });
+  }
+
+  async activate(id: string): Promise<void> {
+    if (!(await this.confirm.ask(this.i18n.t('members.activateConfirm')))) return;
+    this.api.post(`/students/${id}/login-status`, { status: 'ACTIVE' }).subscribe({
+      next: () => {
+        this.alerts.success(this.i18n.t('members.activatedLogin'));
+        this.load(this.page());
+      },
+      error: (e) => this.alerts.error(apiErrorMessage(e))
+    });
+  }
+
   onFilterBranchChange(value: string): void {
     this.filterBranch.set(value);
     this.filterCourse.set('');

@@ -2,16 +2,18 @@ import { Component, OnDestroy, OnInit, inject, input } from '@angular/core';
 import { LangSwitchComponent } from '../../shared/lang-switch.component';
 import { TPipe } from '../../core/t.pipe';
 import { AuthBackgroundService } from './auth-background.service';
+import { AuthService } from '../../core/auth.service';
 
 @Component({
   selector: 'app-auth-shell',
   imports: [LangSwitchComponent, TPipe],
   template: `
     <div class="ff-auth-bg" aria-hidden="true">
-      @for (src of bg.images; track src; let i = $index) {
+      @for (src of bg.images(); track src; let i = $index) {
         <div
           class="ff-auth-slide"
           [class.is-active]="i === bg.index()"
+          [class.is-logo]="bg.useContain()"
           [style.background-image]="'url(' + src + ')'"
         ></div>
       }
@@ -34,10 +36,15 @@ import { AuthBackgroundService } from './auth-background.service';
 })
 export class AuthShellComponent implements OnInit, OnDestroy {
   readonly bg = inject(AuthBackgroundService);
+  private readonly auth = inject(AuthService);
   readonly wide = input(false);
 
   ngOnInit(): void {
     this.bg.start();
+    this.auth.config().subscribe({
+      next: (c) => this.bg.apply(c.loginImages, c.logoUrl),
+      error: () => this.bg.apply([], null)
+    });
   }
 
   ngOnDestroy(): void {

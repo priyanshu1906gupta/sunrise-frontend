@@ -750,6 +750,17 @@ a.ff-sub-chip:hover .ff-sub-chip__count {
 
 .ff-app {
   min-width: 0;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.ff-app input,
+.ff-app textarea,
+.ff-app [contenteditable],
+.ff-auth input,
+.ff-auth textarea {
+  user-select: text;
+  -webkit-user-select: text;
 }
 
 .ff-toolbar {
@@ -892,6 +903,8 @@ a.ff-sub-chip:hover .ff-sub-chip__count {
   min-height: 100vh;
   color: #fff;
   overflow: hidden;
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 body:has(.ff-auth) {
@@ -920,6 +933,12 @@ body:has(.ff-auth) {
 .ff-auth-slide.is-active {
   opacity: 1;
   transform: scale(1);
+}
+
+.ff-auth-slide.is-logo {
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-color: #05070c;
 }
 
 .ff-auth-veil {

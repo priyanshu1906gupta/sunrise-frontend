@@ -111,6 +111,22 @@ export const routes: Routes = [
           import('./views/live-classes/live-classes.component').then((m) => m.LiveClassesComponent)
       },
       {
+        path: 'study-materials/new',
+        canActivate: [testAuthorGuard],
+        loadComponent: () =>
+          import('./views/study-materials/study-create.component').then((m) => m.StudyCreateComponent)
+      },
+      {
+        path: 'study-materials/:id/view',
+        loadComponent: () =>
+          import('./views/study-materials/study-viewer.component').then((m) => m.StudyViewerComponent)
+      },
+      {
+        path: 'study-materials',
+        loadComponent: () =>
+          import('./views/study-materials/study-list.component').then((m) => m.StudyListComponent)
+      },
+      {
         path: 'expenses',
         loadComponent: () => import('./views/expenses/expenses.component').then((m) => m.ExpensesComponent)
       },
@@ -178,6 +194,22 @@ export const routes: Routes = [
         path: 'branches/:branchId/live-classes',
         loadComponent: () =>
           import('./views/live-classes/live-classes.component').then((m) => m.LiveClassesComponent)
+      },
+      {
+        path: 'branches/:branchId/study-materials/new',
+        canActivate: [testAuthorGuard],
+        loadComponent: () =>
+          import('./views/study-materials/study-create.component').then((m) => m.StudyCreateComponent)
+      },
+      {
+        path: 'branches/:branchId/study-materials/:id/view',
+        loadComponent: () =>
+          import('./views/study-materials/study-viewer.component').then((m) => m.StudyViewerComponent)
+      },
+      {
+        path: 'branches/:branchId/study-materials',
+        loadComponent: () =>
+          import('./views/study-materials/study-list.component').then((m) => m.StudyListComponent)
       },
       {
         path: 'branches/:branchId/employees',

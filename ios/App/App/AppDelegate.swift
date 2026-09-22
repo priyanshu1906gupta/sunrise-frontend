@@ -7,7 +7,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     var window: UIWindow?
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        installScreenshotOverlay()
+        ScreenshotShield.install(on: window)
         return true
     }
 
@@ -40,18 +40,5 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                                           sessionRole: connectingSceneSession.role)
         config.delegateClass = SceneDelegate.self
         return config
-    }
-
-    func installScreenshotOverlay() {
-        NotificationCenter.default.addObserver(forName: UIApplication.userDidTakeScreenshotNotification, object: nil, queue: .main) { [weak self] _ in
-            guard let window = self?.window else { return }
-            let overlay = UIView(frame: window.bounds)
-            overlay.backgroundColor = UIColor.black
-            overlay.tag = 884420
-            window.addSubview(overlay)
-            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-                window.viewWithTag(884420)?.removeFromSuperview()
-            }
-        }
     }
 }

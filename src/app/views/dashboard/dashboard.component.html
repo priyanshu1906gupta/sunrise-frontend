@@ -1,14 +1,16 @@
 <div class="ff-toolbar">
   <h2 class="h4 mb-0 fw-bold">{{ 'nav.dashboard' | t }}</h2>
   <div class="d-flex gap-2 flex-wrap align-items-center">
-    <label class="small mb-0 text-body-secondary" for="ff-month">{{ 'dashboard.month' | t }}</label>
-    <select id="ff-month" class="form-select form-select-sm" style="width:120px" (change)="month.set(+$any($event.target).value); load()">
-      @for (m of monthOptions(); track m.value) {
-        <option [value]="m.value" [selected]="month() === m.value">{{ m.label }}</option>
-      }
-    </select>
-    <label class="small mb-0 text-body-secondary" for="ff-year">{{ 'dashboard.year' | t }}</label>
-    <input id="ff-year" class="form-control form-control-sm" style="width:88px" type="number" [value]="year()" (change)="year.set(+$any($event.target).value); load()" />
+    @if (!auth.isStudent()) {
+      <label class="small mb-0 text-body-secondary" for="ff-month">{{ 'dashboard.month' | t }}</label>
+      <select id="ff-month" class="form-select form-select-sm" style="width:120px" (change)="month.set(+$any($event.target).value); load()">
+        @for (m of monthOptions(); track m.value) {
+          <option [value]="m.value" [selected]="month() === m.value">{{ m.label }}</option>
+        }
+      </select>
+      <label class="small mb-0 text-body-secondary" for="ff-year">{{ 'dashboard.year' | t }}</label>
+      <input id="ff-year" class="form-control form-control-sm" style="width:88px" type="number" [value]="year()" (change)="year.set(+$any($event.target).value); load()" />
+    }
     @if (showAddBranch) {
       <button cButton color="primary" size="sm" (click)="openAdd()">{{ 'dashboard.addBranch' | t }}</button>
     }
@@ -23,6 +25,107 @@
 }
 
 @if (stats(); as s) {
+  @if (auth.isStudent()) {
+    <c-row class="g-4 mb-4 ff-kpi-row">
+      <c-col sm="6" xl class="d-flex">
+        <c-widget-stat-a class="ff-kpi w-100" color="primary" [title]="'dashboard.courses' | t" [value]="'' + countOf('courses')">
+          <ng-template cTemplateId="widgetActionTemplate"><svg cIcon name="cilNotes" size="xl"></svg></ng-template>
+        </c-widget-stat-a>
+      </c-col>
+      <c-col sm="6" xl class="d-flex">
+        <c-widget-stat-a class="ff-kpi w-100" color="info" [title]="'dashboard.batches' | t" [value]="'' + countOf('batches')">
+          <ng-template cTemplateId="widgetActionTemplate"><svg cIcon name="cilLayers" size="xl"></svg></ng-template>
+        </c-widget-stat-a>
+      </c-col>
+      <c-col sm="6" xl class="d-flex">
+        <c-widget-stat-a class="ff-kpi w-100" color="success" [title]="'dashboard.subjects' | t" [value]="'' + countOf('subjects')">
+          <ng-template cTemplateId="widgetActionTemplate"><svg cIcon name="cilSpreadsheet" size="xl"></svg></ng-template>
+        </c-widget-stat-a>
+      </c-col>
+      <c-col sm="6" xl class="d-flex">
+        <c-widget-stat-a class="ff-kpi w-100" color="warning" [title]="'dashboard.testsAvailable' | t" [value]="'' + (s['testsAvailable'] ?? 0)">
+          <ng-template cTemplateId="widgetActionTemplate"><svg cIcon name="cilNotes" size="xl"></svg></ng-template>
+        </c-widget-stat-a>
+      </c-col>
+      <c-col sm="6" xl class="d-flex">
+        <c-widget-stat-a class="ff-kpi w-100" color="info" [title]="'dashboard.testsGiven' | t" [value]="'' + (s['testsGiven'] ?? 0)">
+          <ng-template cTemplateId="widgetActionTemplate"><svg cIcon name="cilTask" size="xl"></svg></ng-template>
+        </c-widget-stat-a>
+      </c-col>
+      <c-col sm="6" xl class="d-flex">
+        <c-widget-stat-a class="ff-kpi w-100" color="danger" [title]="'dashboard.liveNow' | t" [value]="'' + (s['liveNow'] ?? 0)">
+          <ng-template cTemplateId="widgetActionTemplate"><svg cIcon name="cilMediaPlay" size="xl"></svg></ng-template>
+        </c-widget-stat-a>
+      </c-col>
+    </c-row>
+    @if (s['latestResult']; as latest) {
+      <c-card class="mb-3">
+        <c-card-body>
+          <div class="small text-body-secondary">{{ 'dashboard.latestResult' | t }}</div>
+          <div class="fw-semibold">{{ $any(latest)['testName'] }} · {{ $any(latest)['marks'] }} / {{ $any(latest)['total'] }}</div>
+        </c-card-body>
+      </c-card>
+    }
+    <c-card class="mb-3">
+      <c-card-header class="bg-body-tertiary py-2"><h3 class="h6 mb-0">{{ 'dashboard.enrolledCourses' | t }}</h3></c-card-header>
+      <c-card-body>
+        @for (c of $any(s['courses']) || []; track c.id) {
+          <div>{{ c.name }}</div>
+        }
+      </c-card-body>
+    </c-card>
+  } @else if (auth.isTeacher()) {
+    <c-row class="g-4 mb-4 ff-kpi-row">
+      <c-col sm="6" xl class="d-flex">
+        <c-widget-stat-a class="ff-kpi w-100" color="primary" [title]="'dashboard.courses' | t" [value]="'' + (s['courseCount'] ?? 0)">
+          <ng-template cTemplateId="widgetActionTemplate"><svg cIcon name="cilNotes" size="xl"></svg></ng-template>
+        </c-widget-stat-a>
+      </c-col>
+      <c-col sm="6" xl class="d-flex">
+        <c-widget-stat-a class="ff-kpi w-100" color="info" [title]="'dashboard.subjects' | t" [value]="'' + (s['subjectCount'] ?? 0)">
+          <ng-template cTemplateId="widgetActionTemplate"><svg cIcon name="cilSpreadsheet" size="xl"></svg></ng-template>
+        </c-widget-stat-a>
+      </c-col>
+      <c-col sm="6" xl class="d-flex">
+        <c-widget-stat-a class="ff-kpi w-100" color="success" [title]="'dashboard.batches' | t" [value]="'' + (s['batchCount'] ?? 0)">
+          <ng-template cTemplateId="widgetActionTemplate"><svg cIcon name="cilLayers" size="xl"></svg></ng-template>
+        </c-widget-stat-a>
+      </c-col>
+      <c-col sm="6" xl class="d-flex">
+        <c-widget-stat-a class="ff-kpi w-100" color="warning" [title]="'dashboard.activeMembers' | t" [value]="'' + (s['studentCount'] ?? 0)">
+          <ng-template cTemplateId="widgetActionTemplate"><svg cIcon name="cilPeople" size="xl"></svg></ng-template>
+        </c-widget-stat-a>
+      </c-col>
+      <c-col sm="6" xl class="d-flex">
+        <c-widget-stat-a class="ff-kpi w-100" color="info" [title]="'dashboard.testsAdded' | t" [value]="'' + (s['testsAdded'] ?? 0)">
+          <ng-template cTemplateId="widgetActionTemplate"><svg cIcon name="cilNotes" size="xl"></svg></ng-template>
+        </c-widget-stat-a>
+      </c-col>
+      <c-col sm="6" xl class="d-flex">
+        <c-widget-stat-a class="ff-kpi w-100" color="danger" [title]="'dashboard.liveNow' | t" [value]="'' + (s['liveNow'] ?? 0)">
+          <ng-template cTemplateId="widgetActionTemplate"><svg cIcon name="cilMediaPlay" size="xl"></svg></ng-template>
+        </c-widget-stat-a>
+      </c-col>
+      <c-col sm="6" xl class="d-flex">
+        <c-widget-stat-a class="ff-kpi w-100" color="primary" [title]="'dashboard.liveMonth' | t" [value]="'' + (s['liveThisMonth'] ?? 0)">
+          <ng-template cTemplateId="widgetActionTemplate"><svg cIcon name="cilMediaPlay" size="xl"></svg></ng-template>
+        </c-widget-stat-a>
+      </c-col>
+      <c-col sm="6" xl class="d-flex">
+        <c-widget-stat-a class="ff-kpi w-100" color="secondary" [title]="'dashboard.leaves' | t" [value]="'' + (s['leaveCount'] ?? 0)">
+          <ng-template cTemplateId="widgetActionTemplate"><svg cIcon name="cilTask" size="xl"></svg></ng-template>
+        </c-widget-stat-a>
+      </c-col>
+      <c-col sm="6" xl class="d-flex">
+        <c-widget-stat-a class="ff-kpi w-100" color="success" [title]="'dashboard.salary' | t" [value]="s['salary'] | inr">
+          <ng-template cTemplateId="widgetActionTemplate"><svg cIcon name="cilDollar" size="xl"></svg></ng-template>
+        </c-widget-stat-a>
+      </c-col>
+    </c-row>
+    @if (s['salaryDate']) {
+      <p class="text-body-secondary">{{ 'dashboard.salaryDate' | t }}: {{ $any(s['salaryDate']) | date:'dd MMM yyyy' }}</p>
+    }
+  } @else {
   <c-row class="g-4 mb-4 ff-kpi-row">
     <c-col sm="6" xl class="d-flex">
       <c-widget-stat-a class="ff-kpi w-100" color="primary" [title]="'dashboard.activeMembers' | t" [value]="'' + (s['activeStudents'] ?? s['activeMembers'])">
@@ -144,6 +247,7 @@
       </c-col>
     }
   </c-row>
+  }
 }
 
 <c-modal [visible]="branchModal()" [backdrop]="'static'" [keyboard]="!photos.blocking()" (visibleChange)="onBranchVisible($event)" alignment="center" size="lg">

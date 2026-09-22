@@ -1,3 +1,4 @@
+import { DatePipe } from '@angular/common';
 import { Component, computed, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
@@ -63,7 +64,8 @@ type BranchRow = { id: string; name: string; income: number; expenses: number; m
     TemplateIdDirective,
     IconDirective,
     ModalCloseComponent,
-    PasswordInputComponent
+    PasswordInputComponent,
+    DatePipe
   ]
 })
 export class DashboardComponent {
@@ -276,6 +278,11 @@ export class DashboardComponent {
         },
         error: (e) => this.error.set(apiErrorMessage(e))
       });
+  }
+
+  countOf(key: string): number {
+    const value = this.stats()?.[key];
+    return Array.isArray(value) ? value.length : 0;
   }
 
   onBranchVisible(visible: boolean): void {

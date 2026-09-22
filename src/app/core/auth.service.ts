@@ -68,9 +68,10 @@ export class AuthService {
   }
 
   register(body: Record<string, unknown>) {
-    return this.api
-      .post<{ token: string; refreshToken: string; user: AuthUser }>('/auth/register', body)
-      .pipe(tap((res) => this.setSession(res.token, res.refreshToken)));
+    return this.api.post<{ pendingActivation?: boolean; token?: string; refreshToken?: string; user?: AuthUser }>(
+      '/auth/register',
+      body
+    );
   }
 
   google(_idToken: string) {
@@ -103,7 +104,15 @@ export class AuthService {
   }
 
   config() {
-    return this.api.get<{ googleClientId: string | null; idleTimeoutMs?: number; courses?: { id: string; name: string }[] }>('/auth/config').pipe(
+    return this.api
+      .get<{
+        googleClientId: string | null;
+        idleTimeoutMs?: number;
+        courses?: { id: string; name: string }[];
+        logoUrl?: string | null;
+        loginImages?: string[];
+      }>('/auth/config')
+      .pipe(
       tap((c) => {
         if (c.idleTimeoutMs && c.idleTimeoutMs > 0) this.idleMs = c.idleTimeoutMs;
       })

@@ -73,14 +73,10 @@ export class RegisterComponent implements OnInit {
     const body = { ...this.form.getRawValue() };
     if (!body.courseId) delete (body as { courseId?: string }).courseId;
     this.auth.register(body).subscribe({
-      next: () =>
-        this.auth.loadMe().subscribe({
-          next: () => {
-            this.alerts.success(this.i18n.t('auth.registerSuccess'));
-            void this.router.navigateByUrl('/dashboard');
-          },
-          error: (err) => this.fail(err)
-        }),
+      next: () => {
+        this.alerts.success(this.i18n.t('auth.registerSuccess'));
+        void this.router.navigateByUrl('/authentication/login');
+      },
       error: (err) => this.fail(err)
     });
   }

@@ -167,6 +167,8 @@ export class DefaultHeaderComponent extends HeaderComponent {
     if (type === 'MEMBER_PAYMENT' || type === 'STUDENT_PAYMENT') return 'cilPeople';
     if (type === 'EMPLOYEE_SALARY') return 'cilDollar';
     if (type === 'LIVE_CLASS') return 'cilMediaPlay';
+    if (type === 'STUDY_MATERIAL') return 'cilDescription';
+    if (type === 'TEST') return 'cilNotes';
     return 'cilNotes';
   }
 
@@ -174,6 +176,8 @@ export class DefaultHeaderComponent extends HeaderComponent {
     if (type === 'MEMBER_PAYMENT' || type === 'STUDENT_PAYMENT') return 'primary';
     if (type === 'EMPLOYEE_SALARY') return 'info';
     if (type === 'LIVE_CLASS') return 'danger';
+    if (type === 'STUDY_MATERIAL') return 'success';
+    if (type === 'TEST') return 'info';
     return 'warning';
   }
 
@@ -201,6 +205,11 @@ export class DefaultHeaderComponent extends HeaderComponent {
           n.entityId ? `${prefix}/live-classes/${n.entityId}` : `${prefix}/live-classes`
         );
       }
+    } else if (n.type === 'STUDY_MATERIAL') {
+      const view = n.entityId ? `/study-materials/${n.entityId}/view` : '/study-materials';
+      void this.router.navigateByUrl(n.branchId && !this.auth.isStudent() ? `${prefix}${view}` : view);
+    } else if (n.type === 'TEST') {
+      void this.router.navigateByUrl('/tests');
     } else {
       void this.router.navigateByUrl(n.branchId ? `${prefix}/expenses` : '/expenses');
     }

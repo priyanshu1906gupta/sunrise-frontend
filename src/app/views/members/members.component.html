@@ -84,10 +84,19 @@
               <td class="text-nowrap">
                 @if (auth.canWrite()) {
                   @if (isDeactiveList) {
-                    <button cButton color="success" variant="ghost" size="sm" class="ff-icon-btn" [attr.aria-label]="'common.renew' | t" (click)="restore($any(m['id']))">
-                      <svg cIcon name="cilReload"></svg>
-                    </button>
+                    @if (m['deactivated']) {
+                      <button cButton color="success" variant="ghost" size="sm" class="ff-icon-btn" [attr.aria-label]="'common.renew' | t" (click)="restore($any(m['id']))">
+                        <svg cIcon name="cilReload"></svg>
+                      </button>
+                    } @else {
+                      <button cButton color="success" variant="ghost" size="sm" class="ff-icon-btn" [attr.aria-label]="'members.activate' | t" (click)="activate($any(m['id']))">
+                        <svg cIcon name="cilUserFollow"></svg>
+                      </button>
+                    }
                   } @else {
+                    <button cButton color="warning" variant="ghost" size="sm" class="ff-icon-btn" [attr.aria-label]="'members.deactivate' | t" (click)="deactivate($any(m['id']))">
+                      <svg cIcon name="cilUserUnfollow"></svg>
+                    </button>
                     <button cButton color="primary" variant="ghost" size="sm" class="ff-icon-btn" [attr.aria-label]="'common.edit' | t" (click)="openEdit($any(m['id']))">
                       <svg cIcon name="cilPencil"></svg>
                     </button>

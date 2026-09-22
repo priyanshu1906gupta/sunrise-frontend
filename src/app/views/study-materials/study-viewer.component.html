@@ -1,0 +1,21 @@
+<div class="ff-toolbar">
+  <h2 class="h4 mb-0">{{ 'study.view' | t }}</h2>
+  <a cButton color="secondary" variant="outline" [routerLink]="backLink">{{ 'live.back' | t }}</a>
+</div>
+
+@if (error()) {
+  <div class="text-danger mb-2">{{ error() }}</div>
+} @else if (loading()) {
+  <p class="text-body-secondary">{{ 'study.loading' | t }}</p>
+} @else {
+  <div class="study-viewer">
+    <div class="study-toolbar">
+      <button cButton color="secondary" variant="outline" size="sm" type="button" [disabled]="page() <= 1" (click)="prev()">{{ 'common.prev' | t }}</button>
+      <span>{{ page() }} / {{ pages() }}</span>
+      <button cButton color="secondary" variant="outline" size="sm" type="button" [disabled]="page() >= pages()" (click)="next()">{{ 'common.next' | t }}</button>
+    </div>
+    <div class="study-stage">
+      <canvas #pageCanvas class="study-page"></canvas>
+    </div>
+  </div>
+}

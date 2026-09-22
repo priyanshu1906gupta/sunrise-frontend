@@ -1,0 +1,62 @@
+<div class="ff-toolbar">
+  <h2 class="h4 mb-0">{{ 'nav.studyMaterial' | t }}</h2>
+  <div class="d-flex gap-2 flex-wrap align-items-center">
+    <select class="form-select form-select-sm" style="width:200px" [value]="courseFilter()" (change)="onCourseChange($any($event.target).value)">
+      <option value="">{{ 'common.all' | t }}</option>
+      @for (c of courses(); track c.id) {
+        <option [value]="c.id">{{ c.name }}</option>
+      }
+    </select>
+    <select class="form-select form-select-sm" style="width:180px" [value]="subjectFilter()" (change)="subjectFilter.set($any($event.target).value)">
+      <option value="">{{ 'study.allSubjects' | t }}</option>
+      @for (s of subjects(); track s.id) {
+        <option [value]="s.id">{{ s.name }}</option>
+      }
+    </select>
+    @if (auth.canAuthorTests()) {
+      <a cButton color="primary" [routerLink]="newLink">{{ 'study.add' | t }}</a>
+    }
+  </div>
+</div>
+
+@if (error()) {
+  <div class="text-danger mb-2">{{ error() }}</div>
+}
+
+@if (!filtered().length) {
+  <app-empty />
+} @else {
+  <c-card>
+    <div class="table-responsive">
+      <table cTable hover class="mb-0">
+        <thead>
+          <tr>
+            <th>{{ 'study.name' | t }}</th>
+            <th>{{ 'study.course' | t }}</th>
+            <th>{{ 'study.subject' | t }}</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (row of filtered(); track row.id) {
+            <tr>
+              <td>{{ row.name }}</td>
+              <td>{{ row.courseName }}</td>
+              <td>{{ row.subjectName }}</td>
+              <td class="text-nowrap">
+                <a cButton color="primary" variant="ghost" size="sm" class="ff-icon-btn" [routerLink]="viewLink(row.id)" [attr.aria-label]="'study.view' | t">
+                  <svg cIcon name="eye"></svg>
+                </a>
+                @if (auth.canAuthorTests()) {
+                  <button cButton color="danger" variant="ghost" size="sm" class="ff-icon-btn" type="button" (click)="remove(row.id)">
+                    <svg cIcon name="cilTrash"></svg>
+                  </button>
+                }
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </c-card>
+}

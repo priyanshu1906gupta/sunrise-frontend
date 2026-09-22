@@ -1,0 +1,43 @@
+<div class="ff-toolbar">
+  <h2 class="h4 mb-0">{{ 'study.add' | t }}</h2>
+  <a cButton color="secondary" variant="outline" [routerLink]="backLink">{{ 'common.cancel' | t }}</a>
+</div>
+
+<c-card>
+  <c-card-body>
+    <div class="row g-3">
+      <div class="col-md-6">
+        <label cLabel>{{ 'study.course' | t }}</label>
+        <select class="form-select" [ngModel]="courseId()" (ngModelChange)="onCourseChange($event)">
+          <option value="">{{ 'live.selectCourse' | t }}</option>
+          @for (c of courses(); track c.id) {
+            <option [value]="c.id">{{ c.name }}</option>
+          }
+        </select>
+      </div>
+      <div class="col-md-6">
+        <label cLabel>{{ 'study.subject' | t }}</label>
+        <select class="form-select" [ngModel]="subjectId()" (ngModelChange)="subjectId.set($event)" [disabled]="!courseId()">
+          <option value="">{{ 'live.selectSubject' | t }}</option>
+          @for (s of subjects(); track s.id) {
+            <option [value]="s.id">{{ s.name }}</option>
+          }
+        </select>
+      </div>
+      <div class="col-md-6">
+        <label cLabel>{{ 'study.name' | t }}</label>
+        <input cFormControl [ngModel]="name()" (ngModelChange)="name.set($event)" />
+      </div>
+      <div class="col-md-6">
+        <label cLabel>{{ 'study.pdf' | t }}</label>
+        <input class="form-control" type="file" accept="application/pdf,.pdf" (change)="onFile($event)" [disabled]="busy()" />
+        @if (fileName()) {
+          <div class="small text-success mt-1">{{ fileName() }}</div>
+        }
+      </div>
+    </div>
+    <div class="mt-3">
+      <button cButton color="primary" type="button" [disabled]="busy()" (click)="save()">{{ 'common.save' | t }}</button>
+    </div>
+  </c-card-body>
+</c-card>
