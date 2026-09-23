@@ -12,14 +12,18 @@
   <c-row class="g-3">
     @for (t of tests(); track t.id) {
       <c-col sm="6" xl="4">
-        <c-card>
+        <c-card class="ff-entity-card h-100">
           <c-card-body>
-            <h3 class="h5 mb-1">{{ t.name }}</h3>
-            <div class="small text-body-secondary mb-2">{{ t.courseName }}</div>
-            <div class="small">{{ 'tests.duration' | t }}: {{ t.durationMinutes }}</div>
-            <div class="small">{{ 'tests.questions' | t }}: {{ t.questionCount }}</div>
-            <div class="small">{{ 'tests.subjects' | t }}: {{ t.subjects.join(', ') }}</div>
-            <div class="small mb-3">{{ 'tests.totalMarks' | t }}: {{ t.totalMarks }}</div>
+            <h3 class="ff-entity-card__title mb-1">{{ t.name }}</h3>
+            <div class="ff-chip mb-2">{{ t.courseName }}</div>
+            <div class="ff-chip-row mb-3">
+              <span class="ff-chip">{{ t.durationMinutes }} {{ 'tests.duration' | t }}</span>
+              <span class="ff-chip">{{ t.questionCount }} {{ 'tests.questions' | t }}</span>
+              <span class="ff-chip">{{ t.totalMarks }} {{ 'tests.totalMarks' | t }}</span>
+            </div>
+            @if (t.subjects.length) {
+              <div class="small text-body-secondary mb-3">{{ 'tests.subjects' | t }}: {{ t.subjects.join(', ') }}</div>
+            }
             <button cButton color="primary" type="button" (click)="open(t)">
               @if (t.attemptStatus === 'SUBMITTED' || t.attemptStatus === 'AUTO_SUBMITTED') {
                 {{ 'tests.viewResult' | t }}

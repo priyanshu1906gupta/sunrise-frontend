@@ -13,12 +13,12 @@
   <c-row class="g-3">
     @for (b of batches(); track b.id) {
       <c-col sm="6" xl="4">
-        <c-card>
+        <c-card class="ff-entity-card h-100">
           <c-card-body>
             <div class="d-flex justify-content-between align-items-start gap-2">
               <div>
-                <h3 class="h5 mb-1">{{ b.name }}</h3>
-                <div class="small text-body-secondary">{{ b.courseName }}</div>
+                <h3 class="ff-entity-card__title mb-1">{{ b.name }}</h3>
+                <div class="ff-chip mb-1">{{ b.courseName }}</div>
               </div>
               @if (auth.canWrite()) {
                 <div class="text-nowrap">

@@ -1,4 +1,3 @@
-import { DatePipe } from '@angular/common';
 import { Component, computed, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
@@ -35,6 +34,7 @@ import { ModalCloseComponent } from '../../shared/modal-close.component';
 import { onBranchRouteChange } from '../../core/on-branch-route';
 
 type BranchRow = { id: string; name: string; income: number; expenses: number; members: number; pending: number };
+type EnrollmentCard = { id: string; name: string; batches: string[]; subjects: string[] };
 
 @Component({
   selector: 'app-dashboard',
@@ -64,8 +64,7 @@ type BranchRow = { id: string; name: string; income: number; expenses: number; m
     TemplateIdDirective,
     IconDirective,
     ModalCloseComponent,
-    PasswordInputComponent,
-    DatePipe
+    PasswordInputComponent
   ]
 })
 export class DashboardComponent {
@@ -126,18 +125,33 @@ export class DashboardComponent {
     };
   });
 
-  readonly shiftChart = computed(() => {
+  readonly testsChart = computed(() => {
     this.i18n.lang();
     const s = this.stats();
     return {
-      labels: [this.i18n.t('common.morning'), this.i18n.t('common.evening')],
+      labels: [this.i18n.t('dashboard.testsAdded'), this.i18n.t('dashboard.testsGiven')],
       datasets: [
         {
-          data: [Number(s?.['morningMembers'] ?? 0), Number(s?.['eveningMembers'] ?? 0)],
-          backgroundColor: ['#2eb85c', '#39b6f9']
+          data: [Number(s?.['testsAdded'] ?? 0), Number(s?.['testsGiven'] ?? 0)],
+          backgroundColor: ['#39b6f9', '#2eb85c']
         }
       ]
     };
+  });
+
+  readonly enrollments = computed<EnrollmentCard[]>(() => {
+    const s = this.stats();
+    if (!s) return [];
+    if (Array.isArray(s['enrollments'])) return s['enrollments'] as EnrollmentCard[];
+    const courses = (s['courses'] as { id: string; name: string; subjects?: { name: string }[] }[]) || [];
+    const batches = (s['batches'] as { name: string; courseId?: string }[]) || [];
+    const subjects = (s['subjects'] as { name: string }[]) || [];
+    return courses.map((c) => ({
+      id: c.id,
+      name: c.name,
+      batches: batches.filter((b) => !b.courseId || b.courseId === c.id).map((b) => b.name),
+      subjects: (c.subjects || subjects).map((sub) => sub.name)
+    }));
   });
 
   readonly branchChart = computed(() => {

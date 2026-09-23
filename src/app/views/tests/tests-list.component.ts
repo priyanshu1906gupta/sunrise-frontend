@@ -1,6 +1,6 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { ButtonDirective, CardComponent, TableDirective } from '@coreui/angular';
+import { ButtonDirective, CardBodyComponent, CardComponent, ColComponent, RowComponent } from '@coreui/angular';
 import { IconDirective } from '@coreui/icons-angular';
 import { ApiService, apiErrorMessage } from '../../core/api.service';
 import { AuthService } from '../../core/auth.service';
@@ -15,7 +15,7 @@ import { StaffTestRow } from './test.models';
 @Component({
   selector: 'app-tests-list',
   templateUrl: './tests-list.component.html',
-  imports: [ButtonDirective, CardComponent, TableDirective, IconDirective, RouterLink, TPipe, EmptyComponent]
+  imports: [ButtonDirective, CardComponent, CardBodyComponent, ColComponent, RowComponent, IconDirective, RouterLink, TPipe, EmptyComponent]
 })
 export class TestsListComponent {
   private readonly api = inject(ApiService);

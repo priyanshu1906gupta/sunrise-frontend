@@ -25,16 +25,16 @@
       <c-row class="g-3">
         @for (s of course.subjects; track s.id) {
           <c-col sm="6" xl="4">
-            <c-card>
+            <c-card class="ff-entity-card h-100" [class.is-live]="!!s.liveSessionId">
               <c-card-body>
                 <div class="d-flex align-items-center gap-2 mb-2">
-                  <h3 class="h5 mb-0">{{ s.name }}</h3>
+                  <h3 class="ff-entity-card__title mb-0">{{ s.name }}</h3>
                   @if (s.liveSessionId) {
                     <span class="live-dot" [attr.title]="'live.liveNow' | t"></span>
                     <span class="small text-danger fw-semibold">{{ 'live.liveNow' | t }}</span>
                   }
                 </div>
-                <div class="small text-body-secondary mb-3">{{ course.name }}</div>
+                <div class="ff-chip mb-3">{{ course.name }}</div>
                 @if (isStaff()) {
                   <button cButton color="danger" type="button" [disabled]="starting()" (click)="goLive(s.id)">
                     {{ s.liveSessionId ? ('live.resume' | t) : ('live.goLive' | t) }}

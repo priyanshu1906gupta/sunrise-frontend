@@ -10,6 +10,7 @@ import {
 } from '@coreui/angular';
 import { AlertService } from '../../core/alert.service';
 import { ApiService, apiErrorMessage } from '../../core/api.service';
+import { AuthService } from '../../core/auth.service';
 import { I18nService } from '../../core/i18n.service';
 import { TPipe } from '../../core/t.pipe';
 
@@ -23,7 +24,9 @@ import { TPipe } from '../../core/t.pipe';
           <p>{{ d.body }}</p>
           <p class="fw-semibold mb-1">{{ 'help.contact' | t }}</p>
           <p class="mb-1">{{ 'auth.email' | t }}: {{ d.email }}</p>
-          <p class="mb-0">{{ 'auth.mobile' | t }}: {{ d.phone }}</p>
+          @if (auth.isAdmin()) {
+            <p class="mb-0">{{ 'auth.mobile' | t }}: {{ d.phone }}</p>
+          }
         }
       </c-card-body>
     </c-card>
@@ -61,6 +64,7 @@ import { TPipe } from '../../core/t.pipe';
 })
 export class HelpComponent implements OnInit {
   private readonly api = inject(ApiService);
+  readonly auth = inject(AuthService);
   private readonly fb = inject(FormBuilder);
   private readonly alerts = inject(AlertService);
   private readonly i18n = inject(I18nService);

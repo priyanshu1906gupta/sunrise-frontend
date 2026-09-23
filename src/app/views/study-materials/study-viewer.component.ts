@@ -1,9 +1,16 @@
 import { Component, ElementRef, OnDestroy, inject, signal, viewChild } from '@angular/core';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { ButtonDirective } from '@coreui/angular';
 import { ApiService, apiErrorMessage } from '../../core/api.service';
-import { AlertService } from '../../core/alert.service';
 import { TPipe } from '../../core/t.pipe';
+
+type StudyMeta = {
+  id: string;
+  name: string;
+  kind: 'PDF' | 'YOUTUBE';
+  youtubeEmbedUrl?: string | null;
+};
 
 @Component({
   selector: 'app-study-viewer',
@@ -14,13 +21,16 @@ import { TPipe } from '../../core/t.pipe';
 export class StudyViewerComponent implements OnDestroy {
   private readonly api = inject(ApiService);
   private readonly route = inject(ActivatedRoute);
-  private readonly alerts = inject(AlertService);
+  private readonly sanitizer = inject(DomSanitizer);
   private readonly canvasRef = viewChild<ElementRef<HTMLCanvasElement>>('pageCanvas');
 
   readonly error = signal('');
   readonly loading = signal(true);
   readonly page = signal(1);
   readonly pages = signal(1);
+  readonly kind = signal<'PDF' | 'YOUTUBE'>('PDF');
+  readonly title = signal('');
+  readonly embedUrl = signal<SafeResourceUrl | null>(null);
   private pdf: { numPages: number; getPage: (n: number) => Promise<unknown> } | null = null;
   private rendering = false;
 
@@ -36,8 +46,28 @@ export class StudyViewerComponent implements OnDestroy {
       this.loading.set(false);
       return;
     }
-    this.api.download(`/study-materials/${id}/file`).subscribe({
-      next: (blob) => void this.open(blob),
+    this.api.get<StudyMeta>(`/study-materials/${id}`).subscribe({
+      next: (row) => {
+        this.title.set(row.name);
+        this.kind.set(row.kind === 'YOUTUBE' ? 'YOUTUBE' : 'PDF');
+        if (row.kind === 'YOUTUBE') {
+          if (!row.youtubeEmbedUrl) {
+            this.loading.set(false);
+            this.error.set('Could not open video');
+            return;
+          }
+          this.embedUrl.set(this.sanitizer.bypassSecurityTrustResourceUrl(row.youtubeEmbedUrl));
+          this.loading.set(false);
+          return;
+        }
+        this.api.download(`/study-materials/${id}/file`).subscribe({
+          next: (blob) => void this.open(blob),
+          error: (e) => {
+            this.loading.set(false);
+            this.error.set(apiErrorMessage(e));
+          }
+        });
+      },
       error: (e) => {
         this.loading.set(false);
         this.error.set(apiErrorMessage(e));

@@ -4,18 +4,32 @@
   class="d-print-none sidebar sidebar-fixed border-end ff-sidebar"
   colorScheme="dark"
   id="sidebar1"
-  visible
+  [visible]="sidebarVisible()"
+  (visibleChange)="sidebarVisible.set($event)"
 >
   <c-sidebar-header class="border-bottom ff-sidebar-brand-wrap">
-    <c-sidebar-brand [routerLink]="['/dashboard']">
+    <c-sidebar-brand [routerLink]="['/dashboard']" (click)="closeMobileSidebar($event)">
       <img [src]="auth.brandLogo()" appFallbackSrc alt="Sunrise Coaching Khargone" class="sidebar-brand-full ff-brand-logo" />
       <img [src]="auth.brandLogo()" appFallbackSrc alt="Sunrise Coaching Khargone" class="sidebar-brand-narrow ff-brand-logo" />
     </c-sidebar-brand>
+    <button type="button" class="ff-sidebar-close" aria-label="Close menu" (click)="closeMobileSidebar($event)">
+      <span aria-hidden="true">&times;</span>
+    </button>
   </c-sidebar-header>
 
   <ng-scrollbar pointerEventsMethod="scrollbar" visibility="hover">
     @for (lang of [i18n.lang()]; track lang) {
-      <c-sidebar-nav [navItems]="navItems()" dropdownMode="none" compact />
+      <c-sidebar-nav class="ff-sidebar-list" [navItems]="navItems()" dropdownMode="none" compact />
+      <nav class="ff-nav-grid" aria-label="App menu">
+        @for (item of gridNavItems(); track item.url + item.name) {
+          <a class="ff-nav-tile" [routerLink]="item.url" (click)="closeMobileSidebar($event)">
+            <span class="ff-nav-tile__icon">
+              <svg cIcon [name]="item.icon" size="xl"></svg>
+            </span>
+            <span class="ff-nav-tile__label">{{ item.name }}</span>
+          </a>
+        }
+      </nav>
     }
   </ng-scrollbar>
 

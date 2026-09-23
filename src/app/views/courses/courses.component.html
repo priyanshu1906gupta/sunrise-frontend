@@ -14,12 +14,12 @@
   <c-row class="g-3 mb-4">
     @for (c of courses(); track c.id) {
       <c-col sm="6" xl="4">
-        <c-card>
+        <c-card class="ff-entity-card h-100">
           <c-card-body>
             <div class="d-flex justify-content-between align-items-start gap-2">
               <div>
-                <h3 class="h5 mb-1">{{ c.name }}</h3>
-                <div class="small text-body-secondary">{{ c.durationMonths }} {{ 'courses.duration' | t }} · {{ c.price | inr }}</div>
+                <h3 class="ff-entity-card__title mb-1">{{ c.name }}</h3>
+                <div class="ff-entity-card__meta">{{ c.durationMonths }} {{ 'courses.duration' | t }} · {{ c.price | inr }}</div>
               </div>
               @if (auth.canWrite()) {
                 <div class="text-nowrap">
@@ -35,7 +35,11 @@
             @if (c.details) {
               <p class="small mt-2 mb-1">{{ c.details }}</p>
             }
-            <div class="small mt-2">{{ 'courses.subjects' | t }}: {{ subjectNames(c) }}</div>
+            <div class="ff-chip-row mt-3">
+              @for (s of c.subjects; track s.id) {
+                <span class="ff-chip">{{ s.name }}</span>
+              }
+            </div>
           </c-card-body>
         </c-card>
       </c-col>
@@ -52,35 +56,27 @@
 @if (!subjects().length) {
   <p class="text-body-secondary">{{ 'common.noData' | t }}</p>
 } @else {
-  <c-card>
-    <div class="table-responsive">
-      <table cTable hover>
-        <thead>
-          <tr>
-            <th>{{ 'common.name' | t }}</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (s of subjects(); track s.id) {
-            <tr>
-              <td>{{ s.name }}</td>
-              <td class="text-nowrap">
-                @if (auth.canWrite()) {
-                  <button cButton color="primary" variant="ghost" size="sm" class="ff-icon-btn" (click)="openSubject(s)">
-                    <svg cIcon name="cilPencil"></svg>
-                  </button>
-                  <button cButton color="danger" variant="ghost" size="sm" class="ff-icon-btn" (click)="removeSubject(s.id)">
-                    <svg cIcon name="cilTrash"></svg>
-                  </button>
-                }
-              </td>
-            </tr>
-          }
-        </tbody>
-      </table>
-    </div>
-  </c-card>
+  <c-row class="g-3">
+    @for (s of subjects(); track s.id) {
+      <c-col sm="6" md="4" xl="3">
+        <c-card class="ff-entity-card h-100">
+          <c-card-body class="d-flex justify-content-between align-items-center gap-2">
+            <div class="fw-semibold">{{ s.name }}</div>
+            @if (auth.canWrite()) {
+              <div class="text-nowrap">
+                <button cButton color="primary" variant="ghost" size="sm" class="ff-icon-btn" (click)="openSubject(s)">
+                  <svg cIcon name="cilPencil"></svg>
+                </button>
+                <button cButton color="danger" variant="ghost" size="sm" class="ff-icon-btn" (click)="removeSubject(s.id)">
+                  <svg cIcon name="cilTrash"></svg>
+                </button>
+              </div>
+            }
+          </c-card-body>
+        </c-card>
+      </c-col>
+    }
+  </c-row>
 }
 
 <c-modal [visible]="courseOpen()" (visibleChange)="courseOpen.set($event)" alignment="center">

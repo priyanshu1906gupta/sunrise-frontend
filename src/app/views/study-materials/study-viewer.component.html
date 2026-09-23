@@ -1,5 +1,5 @@
 <div class="ff-toolbar">
-  <h2 class="h4 mb-0">{{ 'study.view' | t }}</h2>
+  <h2 class="h4 mb-0">{{ title() || ('study.view' | t) }}</h2>
   <a cButton color="secondary" variant="outline" [routerLink]="backLink">{{ 'live.back' | t }}</a>
 </div>
 
@@ -7,6 +7,10 @@
   <div class="text-danger mb-2">{{ error() }}</div>
 } @else if (loading()) {
   <p class="text-body-secondary">{{ 'study.loading' | t }}</p>
+} @else if (kind() === 'YOUTUBE' && embedUrl(); as url) {
+  <div class="study-embed">
+    <iframe [src]="url" title="YouTube video" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+  </div>
 } @else {
   <div class="study-viewer">
     <div class="study-toolbar">

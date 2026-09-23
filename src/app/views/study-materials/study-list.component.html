@@ -32,6 +32,7 @@
         <thead>
           <tr>
             <th>{{ 'study.name' | t }}</th>
+            <th>{{ 'study.kind' | t }}</th>
             <th>{{ 'study.course' | t }}</th>
             <th>{{ 'study.subject' | t }}</th>
             <th></th>
@@ -41,6 +42,7 @@
           @for (row of filtered(); track row.id) {
             <tr>
               <td>{{ row.name }}</td>
+              <td>{{ row.kind === 'YOUTUBE' ? ('study.youtube' | t) : ('study.pdf' | t) }}</td>
               <td>{{ row.courseName }}</td>
               <td>{{ row.subjectName }}</td>
               <td class="text-nowrap">

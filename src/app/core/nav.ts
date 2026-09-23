@@ -61,7 +61,6 @@ export function buildNav(me: Me | null, i18n: I18nService): INavData[] {
       { name: t('nav.leave', 'Apply Leave'), url: '/leave', iconComponent: { name: 'cil-task' }, linkProps: exact },
       { name: t('nav.courses', 'Courses & Subjects'), url: '/courses', iconComponent: { name: 'cil-notes' }, linkProps: exact },
       { name: t('nav.batches', 'Batch'), url: '/batches', iconComponent: { name: 'cil-layers' }, linkProps: exact },
-      { name: t('nav.calendar', 'Calendar'), url: '/calendar', iconComponent: { name: 'cil-calendar' }, linkProps: exact },
       ...extras.filter((item) => item.url !== '/subscription')
     ];
   }

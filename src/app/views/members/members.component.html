@@ -55,10 +55,12 @@
             <th>{{ 'common.name' | t }}</th>
             <th>{{ 'members.course' | t }}</th>
             <th>{{ 'common.phone' | t }}</th>
-            <th>{{ 'members.monthEnd' | t }}</th>
-            <th>{{ 'members.subscription' | t }}</th>
-            <th>{{ 'members.subscriptionStatus' | t }}</th>
-            <th>{{ 'members.paymentStatus' | t }}</th>
+            @if (auth.canWrite()) {
+              <th>{{ 'members.monthEnd' | t }}</th>
+              <th>{{ 'members.subscription' | t }}</th>
+              <th>{{ 'members.subscriptionStatus' | t }}</th>
+              <th>{{ 'members.paymentStatus' | t }}</th>
+            }
             <th></th>
           </tr>
         </thead>
@@ -71,16 +73,18 @@
               <td><a href="javascript:void(0)" (click)="openDetail($any(m['id']))">{{ m['fullName'] }}</a></td>
               <td>{{ courseNames($any(m)) }}</td>
               <td>{{ m['phone'] }}</td>
-              <td>{{ m['monthEndDate'] | date:'dd MMM yyyy' }}</td>
-              <td>{{ m['subscriptionMonths'] }} {{ 'courses.duration' | t }}</td>
-              <td>
-                <c-badge [color]="m['subscriptionStatus'] === 'ACTIVE' ? 'success' : 'danger'">
-                  {{ m['subscriptionStatus'] === 'ACTIVE' ? ('common.active' | t) : ('members.expired' | t) }}
-                </c-badge>
-              </td>
-              <td>
-                <c-badge [color]="m['paymentStatus'] === 'PAID' ? 'success' : 'danger'">{{ m['paymentStatus'] }}</c-badge>
-              </td>
+              @if (auth.canWrite()) {
+                <td>{{ m['monthEndDate'] | date:'dd MMM yyyy' }}</td>
+                <td>{{ m['subscriptionMonths'] }} {{ 'courses.duration' | t }}</td>
+                <td>
+                  <c-badge [color]="m['subscriptionStatus'] === 'ACTIVE' ? 'success' : 'danger'">
+                    {{ m['subscriptionStatus'] === 'ACTIVE' ? ('common.active' | t) : ('members.expired' | t) }}
+                  </c-badge>
+                </td>
+                <td>
+                  <c-badge [color]="m['paymentStatus'] === 'PAID' ? 'success' : 'danger'">{{ m['paymentStatus'] }}</c-badge>
+                </td>
+              }
               <td class="text-nowrap">
                 @if (auth.canWrite()) {
                   @if (isDeactiveList) {
@@ -135,14 +139,16 @@
   </c-modal-header>
   <c-modal-body>
     @if (detail(); as d) {
-      <div class="ff-subtabs" role="tablist">
-        <button type="button" role="tab" [class.is-active]="detailTab() === 'general'" (click)="detailTab.set('general')">
-          {{ 'members.generalDetails' | t }}
-        </button>
-        <button type="button" role="tab" [class.is-active]="detailTab() === 'transactions'" (click)="detailTab.set('transactions')">
-          {{ 'members.transactions' | t }}
-        </button>
-      </div>
+      @if (auth.canWrite()) {
+        <div class="ff-subtabs" role="tablist">
+          <button type="button" role="tab" [class.is-active]="detailTab() === 'general'" (click)="detailTab.set('general')">
+            {{ 'members.generalDetails' | t }}
+          </button>
+          <button type="button" role="tab" [class.is-active]="detailTab() === 'transactions'" (click)="detailTab.set('transactions')">
+            {{ 'members.transactions' | t }}
+          </button>
+        </div>
+      }
       @if (detailTab() === 'general') {
         <div class="d-flex gap-4 mb-3 flex-wrap">
           <img [src]="d['photoUrl'] || 'assets/brand/logo.png'" appFallbackSrc class="ff-detail-photo border" alt="" />
@@ -157,21 +163,23 @@
             </div>
           </div>
         </div>
-        <div class="ff-modal-section">
-          <h6 class="mb-2">{{ 'members.paymentDetails' | t }}</h6>
-          <div class="ff-detail-grid">
-            <div class="lbl">{{ 'members.subscriptionMonths' | t }}</div><div>{{ d['subscriptionMonths'] }}</div>
-            <div class="lbl">{{ 'members.registrationCharge' | t }}</div><div>{{ d['registrationCharge'] | inr }}</div>
-            <div class="lbl">{{ 'members.amount' | t }}</div><div class="fw-semibold">{{ (d['paymentAmount'] ?? d['monthlyAmount']) | inr }}</div>
-            <div class="lbl">{{ 'members.paidAmount' | t }}</div><div>{{ d['paidAmount'] | inr }}</div>
-            <div class="lbl">{{ 'members.remainingAmount' | t }}</div><div class="fw-semibold">{{ remainingAmount(d) | inr }}</div>
-            <div class="lbl">{{ 'members.subscriptionStart' | t }}</div><div>{{ d['paymentDate'] | date:'dd MMM yyyy' }}</div>
-            <div class="lbl">{{ 'members.subscriptionEnd' | t }}</div><div>{{ d['monthEndDate'] | date:'dd MMM yyyy' }}</div>
-            <div class="lbl">{{ 'members.nextPaymentDate' | t }}</div><div class="fw-semibold">{{ (d['nextPaymentDate'] || d['monthEndDate']) | date:'dd MMM yyyy' }}</div>
-            <div class="lbl">{{ 'members.paymentStatus' | t }}</div>
-            <div><c-badge [color]="d['paymentStatus'] === 'PAID' ? 'success' : 'danger'">{{ d['paymentStatus'] }}</c-badge></div>
+        @if (auth.canWrite()) {
+          <div class="ff-modal-section">
+            <h6 class="mb-2">{{ 'members.paymentDetails' | t }}</h6>
+            <div class="ff-detail-grid">
+              <div class="lbl">{{ 'members.subscriptionMonths' | t }}</div><div>{{ d['subscriptionMonths'] }}</div>
+              <div class="lbl">{{ 'members.registrationCharge' | t }}</div><div>{{ d['registrationCharge'] | inr }}</div>
+              <div class="lbl">{{ 'members.amount' | t }}</div><div class="fw-semibold">{{ (d['paymentAmount'] ?? d['monthlyAmount']) | inr }}</div>
+              <div class="lbl">{{ 'members.paidAmount' | t }}</div><div>{{ d['paidAmount'] | inr }}</div>
+              <div class="lbl">{{ 'members.remainingAmount' | t }}</div><div class="fw-semibold">{{ remainingAmount(d) | inr }}</div>
+              <div class="lbl">{{ 'members.subscriptionStart' | t }}</div><div>{{ d['paymentDate'] | date:'dd MMM yyyy' }}</div>
+              <div class="lbl">{{ 'members.subscriptionEnd' | t }}</div><div>{{ d['monthEndDate'] | date:'dd MMM yyyy' }}</div>
+              <div class="lbl">{{ 'members.nextPaymentDate' | t }}</div><div class="fw-semibold">{{ (d['nextPaymentDate'] || d['monthEndDate']) | date:'dd MMM yyyy' }}</div>
+              <div class="lbl">{{ 'members.paymentStatus' | t }}</div>
+              <div><c-badge [color]="d['paymentStatus'] === 'PAID' ? 'success' : 'danger'">{{ d['paymentStatus'] }}</c-badge></div>
+            </div>
           </div>
-        </div>
+        }
       } @else {
         @if (!paymentsOf(d).length) {
           <p class="text-body-secondary mb-0">{{ 'members.noPayments' | t }}</p>

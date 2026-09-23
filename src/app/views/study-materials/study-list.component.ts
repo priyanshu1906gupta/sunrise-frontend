@@ -14,6 +14,7 @@ import { EmptyComponent } from '../../shared/empty.component';
 export type StudyRow = {
   id: string;
   name: string;
+  kind?: 'PDF' | 'YOUTUBE';
   courseId: string;
   courseName: string;
   subjectId: string;

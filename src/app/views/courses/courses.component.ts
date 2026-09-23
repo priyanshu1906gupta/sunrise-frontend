@@ -14,8 +14,7 @@ import {
   ModalFooterComponent,
   ModalHeaderComponent,
   ModalTitleDirective,
-  RowComponent,
-  TableDirective
+  RowComponent
 } from '@coreui/angular';
 import { ApiService, apiErrorMessage } from '../../core/api.service';
 import { AuthService } from '../../core/auth.service';
@@ -57,7 +56,6 @@ type CourseRow = {
     ModalTitleDirective,
     ModalBodyComponent,
     ModalFooterComponent,
-    TableDirective,
     InrPipe,
     TPipe,
     EmptyComponent,

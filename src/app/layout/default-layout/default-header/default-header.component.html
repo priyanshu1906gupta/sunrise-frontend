@@ -99,6 +99,13 @@
               </button>
             </div>
           }
+          @if (notifications().length > 0) {
+            <div class="ff-notif-clear" (click)="$event.stopPropagation()">
+              <button type="button" class="ff-notif-clear-btn" [disabled]="clearing()" (click)="clearAll($event)">
+                {{ 'header.clearAll' | t }}
+              </button>
+            </div>
+          }
         </div>
       </c-dropdown>
       <ng-container *ngTemplateOutlet="themeDropdown" />

@@ -39,29 +39,19 @@ async function main() {
 
     const squareLogo = await sharp(logo)
       .resize(dens.launcher, dens.launcher, {
-        fit: "contain",
-        background: { r: 255, g: 255, b: 255, alpha: 1 },
+        fit: "cover",
+        position: "centre",
       })
       .png()
       .toBuffer();
     await sharp(squareLogo).toFile(path.join(dir, "ic_launcher.png"));
     await sharp(squareLogo).toFile(path.join(dir, "ic_launcher_round.png"));
 
-    const inset = Math.round(dens.foreground * 0.18);
-    const inner = dens.foreground - inset * 2;
-    const resized = await sharp(logo)
-      .resize(inner, inner, { fit: "contain", background: { r: 255, g: 255, b: 255, alpha: 1 } })
-      .png()
-      .toBuffer();
-    await sharp({
-      create: {
-        width: dens.foreground,
-        height: dens.foreground,
-        channels: 4,
-        background: { r: 255, g: 255, b: 255, alpha: 1 },
-      },
-    })
-      .composite([{ input: resized, left: inset, top: inset }])
+    await sharp(logo)
+      .resize(dens.foreground, dens.foreground, {
+        fit: "cover",
+        position: "centre",
+      })
       .png()
       .toFile(path.join(dir, "ic_launcher_foreground.png"));
   }

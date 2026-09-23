@@ -105,6 +105,7 @@ export class DefaultHeaderComponent extends HeaderComponent {
   readonly notifTotalPages = signal(0);
   readonly notifTotal = signal(0);
   readonly unreadCount = signal(0);
+  readonly clearing = signal(false);
   readonly notifCount = computed(() => this.unreadCount());
   readonly subscriptionDaysLeft = computed(() => {
     const company = this.auth.me()?.company;
@@ -154,6 +155,27 @@ export class DefaultHeaderComponent extends HeaderComponent {
           this.unreadCount.set(0);
         }
       });
+  }
+
+  clearAll(ev?: Event): void {
+    ev?.stopPropagation();
+    ev?.preventDefault();
+    if (this.clearing()) return;
+    this.clearing.set(true);
+    this.api.post('/notifications/read-all', {}).subscribe({
+      next: () => {
+        this.notifications.set([]);
+        this.notifPage.set(1);
+        this.notifTotalPages.set(0);
+        this.notifTotal.set(0);
+        this.unreadCount.set(0);
+        this.clearing.set(false);
+      },
+      error: () => {
+        this.clearing.set(false);
+        this.refreshNotifications(1);
+      }
+    });
   }
 
   notifGo(page: number, ev?: Event): void {

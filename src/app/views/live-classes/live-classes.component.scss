@@ -1,3 +1,8 @@
+.is-live {
+  border-color: color-mix(in srgb, #e55353 45%, var(--cui-border-color));
+  box-shadow: 0 10px 24px color-mix(in srgb, #e55353 16%, transparent);
+}
+
 .live-dot {
   display: inline-block;
   width: 10px;

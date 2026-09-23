@@ -86,8 +86,10 @@
         <img [src]="d['photoUrl'] || 'assets/brand/logo.png'" appFallbackSrc class="ff-detail-photo border" alt="" />
         <div class="ff-detail-grid flex-grow-1">
           <div class="lbl">{{ 'employees.role' | t }}</div><div>{{ d['role'] === 'MANAGER' ? ('employees.roleManager' | t) : d['role'] === 'STAFF' ? ('employees.roleStaff' | t) : ('employees.roleTeacher' | t) }}</div>
-          <div class="lbl">{{ 'employees.salary' | t }}</div><div class="fw-semibold">{{ d['salary'] | inr }}</div>
-          <div class="lbl">{{ 'employees.salaryDate' | t }}</div><div>{{ d['salaryDate'] | date:'dd MMM yyyy' }}</div>
+          @if (auth.canWrite()) {
+            <div class="lbl">{{ 'employees.salary' | t }}</div><div class="fw-semibold">{{ d['salary'] | inr }}</div>
+            <div class="lbl">{{ 'employees.salaryDate' | t }}</div><div>{{ d['salaryDate'] | date:'dd MMM yyyy' }}</div>
+          }
           <div class="lbl">{{ 'members.joining' | t }}</div><div>{{ d['joiningDate'] | date:'dd MMM yyyy' }}</div>
           <div class="lbl">{{ 'common.email' | t }}</div><div>{{ d['email'] || '—' }}</div>
           <div class="lbl">{{ 'common.phone' | t }}</div><div>{{ d['phone'] || '—' }}</div>
@@ -98,14 +100,16 @@
           }
         </div>
       </div>
-      <div class="ff-modal-section">
-        <h6 class="mb-2">{{ 'employees.history' | t }}</h6>
-        <table cTable small striped>
-          @for (p of $any(d['salaries']); track p.id) {
-            <tr><td>{{ p.paymentDate | date:'dd MMM yyyy' }}</td><td>{{ p.amount | inr }}</td></tr>
-          }
-        </table>
-      </div>
+      @if (auth.canWrite()) {
+        <div class="ff-modal-section">
+          <h6 class="mb-2">{{ 'employees.history' | t }}</h6>
+          <table cTable small striped>
+            @for (p of $any(d['salaries']); track p.id) {
+              <tr><td>{{ p.paymentDate | date:'dd MMM yyyy' }}</td><td>{{ p.amount | inr }}</td></tr>
+            }
+          </table>
+        </div>
+      }
     }
   </c-modal-body>
 </c-modal>

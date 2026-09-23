@@ -1,6 +1,7 @@
 /**
- * Build Android APK + Windows Electron installer and copy them to
+ * Build the Android APK and copy it to
  * sunrise-backend/public/downloads/latest for the landing Download page.
+ * EXE / Electron is not published.
  *
  * Usage (from sunrise-frontend):
  *   npm run publish:native
@@ -180,14 +181,7 @@ function main() {
     log("Android project / Gradle wrapper not found.");
   }
 
-  let windows = null;
-  const electronOk = run("npx", ["electron-builder", "--win", "nsis"], frontendRoot, true);
-  if (electronOk) {
-    const releaseDir = path.join(frontendRoot, "release");
-    const exe = findLatest(releaseDir, /\.exe$/i);
-    windows = copyIfExists(exe, path.join(backendPublic, "windows.exe"));
-  }
-
+  const windows = null;
   writeManifest(android, windows, pkg.version);
   log("restoring production web build (baseHref /app/) so public/app is not replaced by the native bundle");
   run("npm", ["run", "build"], frontendRoot, false);

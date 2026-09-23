@@ -69,8 +69,31 @@
     <c-card class="mb-3">
       <c-card-header class="bg-body-tertiary py-2"><h3 class="h6 mb-0">{{ 'dashboard.enrolledCourses' | t }}</h3></c-card-header>
       <c-card-body>
-        @for (c of $any(s['courses']) || []; track c.id) {
-          <div>{{ c.name }}</div>
+        @if (!enrollments().length) {
+          <p class="text-body-secondary mb-0">{{ 'common.noData' | t }}</p>
+        } @else {
+          <c-row class="g-3">
+            @for (e of enrollments(); track e.id) {
+              <c-col sm="6" xl="4">
+                <div class="ff-entity-card h-100">
+                  <div class="ff-entity-card__title">{{ e.name }}</div>
+                  @if (e.batches.length) {
+                    <div class="small text-body-secondary mt-1">
+                      {{ 'dashboard.enrolledBatch' | t }}:
+                      {{ e.batches.join(', ') }}
+                    </div>
+                  }
+                  @if (e.subjects.length) {
+                    <div class="ff-chip-row mt-2">
+                      @for (sub of e.subjects; track sub) {
+                        <span class="ff-chip">{{ sub }}</span>
+                      }
+                    </div>
+                  }
+                </div>
+              </c-col>
+            }
+          </c-row>
         }
       </c-card-body>
     </c-card>
@@ -122,9 +145,6 @@
         </c-widget-stat-a>
       </c-col>
     </c-row>
-    @if (s['salaryDate']) {
-      <p class="text-body-secondary">{{ 'dashboard.salaryDate' | t }}: {{ $any(s['salaryDate']) | date:'dd MMM yyyy' }}</p>
-    }
   } @else {
   <c-row class="g-4 mb-4 ff-kpi-row">
     <c-col sm="6" xl class="d-flex">
@@ -216,10 +236,10 @@
     </c-col>
     <c-col xs="12" md="6">
       <c-card class="h-100">
-        <c-card-header class="bg-body-tertiary py-2"><h3 class="h6 mb-0">{{ 'dashboard.shiftMix' | t }}</h3></c-card-header>
+        <c-card-header class="bg-body-tertiary py-2"><h3 class="h6 mb-0">{{ 'dashboard.testsMix' | t }}</h3></c-card-header>
         <c-card-body>
           <div class="ff-chart-box">
-            <c-chart type="doughnut" [data]="$any(shiftChart())" [options]="$any(doughnutOptions)" />
+            <c-chart type="doughnut" [data]="$any(testsChart())" [options]="$any(doughnutOptions)" />
           </div>
         </c-card-body>
       </c-card>

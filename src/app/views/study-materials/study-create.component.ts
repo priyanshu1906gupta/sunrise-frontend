@@ -33,6 +33,8 @@ export class StudyCreateComponent {
   readonly name = signal('');
   readonly courseId = signal('');
   readonly subjectId = signal('');
+  readonly kind = signal<'PDF' | 'YOUTUBE'>('PDF');
+  readonly youtubeUrl = signal('');
   readonly fileId = signal<string | null>(null);
   readonly fileName = signal('');
   readonly busy = signal(false);
@@ -63,6 +65,10 @@ export class StudyCreateComponent {
     this.subjectId.set('');
   }
 
+  setKind(kind: 'PDF' | 'YOUTUBE'): void {
+    this.kind.set(kind);
+  }
+
   onFile(event: Event): void {
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0];
@@ -88,8 +94,16 @@ export class StudyCreateComponent {
   }
 
   save(): void {
-    if (!this.courseId() || !this.subjectId() || !this.name().trim() || !this.fileId()) {
+    if (!this.courseId() || !this.subjectId() || !this.name().trim()) {
       this.alerts.error(this.i18n.t('study.needAll'));
+      return;
+    }
+    if (this.kind() === 'PDF' && !this.fileId()) {
+      this.alerts.error(this.i18n.t('study.needAll'));
+      return;
+    }
+    if (this.kind() === 'YOUTUBE' && !this.youtubeUrl().trim()) {
+      this.alerts.error(this.i18n.t('study.invalidYoutube'));
       return;
     }
     this.busy.set(true);
@@ -99,7 +113,9 @@ export class StudyCreateComponent {
         courseId: this.courseId(),
         subjectId: this.subjectId(),
         name: this.name().trim(),
-        fileId: this.fileId()
+        kind: this.kind(),
+        fileId: this.kind() === 'PDF' ? this.fileId() : undefined,
+        youtubeUrl: this.kind() === 'YOUTUBE' ? this.youtubeUrl().trim() : undefined
       })
       .subscribe({
         next: () => {
