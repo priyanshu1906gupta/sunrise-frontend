@@ -4,7 +4,9 @@ import { ButtonDirective, CardBodyComponent, CardComponent, ColComponent, RowCom
 import { apiErrorMessage } from '../../core/api.service';
 import { AuthService } from '../../core/auth.service';
 import { AlertService } from '../../core/alert.service';
+import { I18nService } from '../../core/i18n.service';
 import { LiveCatalog, LiveCourse, LiveService } from '../../core/live.service';
+import { preflightLiveMedia } from '../../core/media-permissions';
 import { onBranchRouteChange } from '../../core/on-branch-route';
 import { TPipe } from '../../core/t.pipe';
 import { EmptyComponent } from '../../shared/empty.component';
@@ -21,6 +23,7 @@ export class LiveClassesComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly alerts = inject(AlertService);
+  private readonly i18n = inject(I18nService);
   private readonly destroyRef = inject(DestroyRef);
 
   readonly courses = signal<LiveCourse[]>([]);
@@ -78,6 +81,12 @@ export class LiveClassesComponent {
     const course = this.selected();
     if (!course || this.starting()) return;
     this.starting.set(true);
+    const allowed = await preflightLiveMedia();
+    if (!allowed) {
+      this.starting.set(false);
+      this.alerts.error(this.i18n.t('live.cameraError'));
+      return;
+    }
     this.live
       .start({
         branchId: this.branchId,

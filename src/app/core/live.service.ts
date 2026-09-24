@@ -59,6 +59,11 @@ export type LiveStartedEvent = {
   subjectName: string;
 };
 
+export type LiveAttendees = {
+  count: number;
+  names: string[];
+};
+
 function socketOrigin(apiBase: string): string {
   try {
     const url = new URL(apiBase, typeof window !== 'undefined' ? window.location.origin : 'http://localhost');
@@ -164,6 +169,12 @@ export class LiveService {
     const socket = this.connect();
     socket.on('live:ended', handler);
     return () => socket.off('live:ended', handler);
+  }
+
+  onAttendees(handler: (ev: LiveAttendees) => void): () => void {
+    const socket = this.connect();
+    socket.on('live:attendees', handler);
+    return () => socket.off('live:attendees', handler);
   }
 
   socketId(): string | undefined {

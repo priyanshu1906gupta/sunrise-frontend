@@ -15,7 +15,8 @@ import { apiErrorMessage } from '../../core/api.service';
 import { AlertService } from '../../core/alert.service';
 import { ConfirmService } from '../../core/confirm.service';
 import { I18nService } from '../../core/i18n.service';
-import { LiveChatMessage, LiveJoin, LiveService, WebrtcSignal } from '../../core/live.service';
+import { LiveAttendees, LiveChatMessage, LiveJoin, LiveService, WebrtcSignal } from '../../core/live.service';
+import { requestLiveMedia } from '../../core/media-permissions';
 import { TPipe } from '../../core/t.pipe';
 
 const ICE: RTCConfiguration = {
@@ -52,6 +53,7 @@ export class LiveRoomComponent implements AfterViewInit, OnDestroy {
   readonly hasStream = signal(false);
   readonly fullScreen = signal(false);
   readonly insecure = signal(typeof window !== 'undefined' && !window.isSecureContext);
+  readonly attendees = signal<LiveAttendees>({ count: 0, names: [] });
   readonly isHost = computed(() => this.session()?.role === 'moderator');
 
   private unsubs: Array<() => void> = [];
@@ -178,6 +180,9 @@ export class LiveRoomComponent implements AfterViewInit, OnDestroy {
         this.closeAllPeers();
         this.attachStream(null);
         this.status.set(this.i18n.t('live.waitingTeacher'));
+      }),
+      this.live.onAttendees((ev) => {
+        this.attendees.set({ count: ev.count || 0, names: ev.names || [] });
       })
     );
 
@@ -193,10 +198,7 @@ export class LiveRoomComponent implements AfterViewInit, OnDestroy {
   private async startTeacher(sessionId: string): Promise<void> {
     this.status.set(this.i18n.t('live.startingCamera'));
     try {
-      this.localStream = await navigator.mediaDevices.getUserMedia({
-        audio: true,
-        video: { facingMode: 'user', width: { ideal: 1280 }, height: { ideal: 720 } }
-      });
+      this.localStream = await requestLiveMedia();
     } catch {
       this.error.set(this.i18n.t('live.cameraError'));
       this.status.set('');
@@ -298,6 +300,7 @@ export class LiveRoomComponent implements AfterViewInit, OnDestroy {
     if (this.ended()) return;
     this.ended.set(true);
     this.messages.set([]);
+    this.attendees.set({ count: 0, names: [] });
     this.live.leaveSession();
     this.stopMedia();
     void this.exitFull();

@@ -22,19 +22,33 @@
 }
 
 <div class="live-room">
-  <div #stage class="live-stage" [class.is-full]="fullScreen()">
-    <video #stageVideo class="live-video" autoplay playsinline [class.d-none]="!hasStream()"></video>
-    @if (!hasStream()) {
-      <div class="live-wait">{{ status() || ('live.connecting' | t) }}</div>
-    }
-    @if (hasStream() && isHost()) {
-      <span class="live-badge">{{ 'live.liveNow' | t }}</span>
-    }
-    @if (!isHost()) {
-      <button class="live-fs-btn" type="button" (click)="toggleFull()">
-        {{ fullScreen() ? ('live.exitFullscreen' | t) : ('live.fullscreen' | t) }}
-      </button>
-    }
+  <div class="live-main">
+    <div #stage class="live-stage" [class.is-full]="fullScreen()">
+      <video #stageVideo class="live-video" autoplay playsinline [class.d-none]="!hasStream()"></video>
+      @if (!hasStream()) {
+        <div class="live-wait">{{ status() || ('live.connecting' | t) }}</div>
+      }
+      @if (hasStream() && isHost()) {
+        <span class="live-badge">{{ 'live.liveNow' | t }}</span>
+      }
+      @if (!isHost()) {
+        <button class="live-fs-btn" type="button" (click)="toggleFull()">
+          {{ fullScreen() ? ('live.exitFullscreen' | t) : ('live.fullscreen' | t) }}
+        </button>
+      }
+    </div>
+    <div class="live-attendees">
+      <h3 class="h6 mb-2">{{ 'live.attending' | t }} ({{ attendees().count }})</h3>
+      @if (!attendees().names.length) {
+        <div class="small text-body-secondary">{{ 'live.noAttendees' | t }}</div>
+      } @else {
+        <div class="live-attendee-list">
+          @for (name of attendees().names; track $index) {
+            <span class="live-attendee-chip">{{ name }}</span>
+          }
+        </div>
+      }
+    </div>
   </div>
   <aside class="live-chat">
     <h3 class="h6 mb-2">{{ 'live.chat' | t }}</h3>
