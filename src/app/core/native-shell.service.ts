@@ -34,6 +34,9 @@ export class NativeShellService {
       const { Capacitor } = await import('@capacitor/core');
       if (!Capacitor.isNativePlatform()) return;
       const { environment } = await import('../../environments/environment');
+      if (Capacitor.getPlatform() === 'android') {
+        this.startAndroidUpdateCheck(environment.apiUrl);
+      }
       if (environment.pushNotifications === false) return;
       const { PushNotifications } = await import('@capacitor/push-notifications');
       const perm = await PushNotifications.requestPermissions();
@@ -63,5 +66,26 @@ export class NativeShellService {
     } catch {
       /* web / electron without Capacitor runtime */
     }
+  }
+
+  private startAndroidUpdateCheck(apiUrl: string, attempt = 0): void {
+    const shell = (window as Window & { SunriseShell?: { startUpdateCheck?: (url: string) => void } }).SunriseShell;
+    if (!shell?.startUpdateCheck) {
+      if (attempt < 10) {
+        window.setTimeout(() => this.startAndroidUpdateCheck(apiUrl, attempt + 1), 400);
+      }
+      return;
+    }
+    const origin = originFromApi(apiUrl);
+    if (!origin) return;
+    shell.startUpdateCheck(`${origin}/downloads/latest/manifest.json`);
+  }
+}
+
+function originFromApi(apiUrl: string): string {
+  try {
+    return new URL(apiUrl, typeof window !== 'undefined' ? window.location.origin : 'http://localhost').origin;
+  } catch {
+    return '';
   }
 }

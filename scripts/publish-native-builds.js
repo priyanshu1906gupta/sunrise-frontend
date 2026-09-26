@@ -131,11 +131,37 @@ function findLatest(dir, match) {
   return files[0] ? files[0].full : null;
 }
 
-function writeManifest(android, windows, pkgVersion) {
+function readVersionCode(gradlePath) {
+  if (!fs.existsSync(gradlePath)) return 1;
+  const text = fs.readFileSync(gradlePath, "utf8");
+  const match = text.match(/versionCode\s+(\d+)/);
+  return match ? Number(match[1]) : 1;
+}
+
+function bumpVersionCode(gradlePath) {
+  const current = readVersionCode(gradlePath);
+  const next = current + 1;
+  const text = fs.readFileSync(gradlePath, "utf8");
+  if (!/versionCode\s+\d+/.test(text)) {
+    throw new Error("versionCode not found in " + gradlePath);
+  }
+  fs.writeFileSync(gradlePath, text.replace(/versionCode\s+\d+/, "versionCode " + next));
+  log("bumped versionCode " + current + " -> " + next);
+  return next;
+}
+
+function writeManifest(android, windows, pkgVersion, versionCode) {
   const manifest = {
     updatedAt: new Date().toISOString(),
     android: android
-      ? { available: true, version: pkgVersion, size: formatBytes(android.size), updatedAt: android.updatedAt, file: "android.apk" }
+      ? {
+          available: true,
+          version: pkgVersion,
+          versionCode,
+          size: formatBytes(android.size),
+          updatedAt: android.updatedAt,
+          file: "android.apk",
+        }
       : { available: false },
     windows: windows
       ? { available: true, version: pkgVersion, size: formatBytes(windows.size), updatedAt: windows.updatedAt, file: "windows.exe" }
@@ -167,9 +193,12 @@ function main() {
   run("node", ["scripts/generate-android-icons.js"], frontendRoot, true);
 
   let android = null;
+  let versionCode = 1;
   const gradlew = process.platform === "win32" ? "gradlew.bat" : "./gradlew";
   const androidDir = path.join(frontendRoot, "android");
+  const gradleFile = path.join(androidDir, "app", "build.gradle");
   if (fs.existsSync(path.join(androidDir, process.platform === "win32" ? "gradlew.bat" : "gradlew"))) {
+    versionCode = bumpVersionCode(gradleFile);
     const ok = run(gradlew, ["assembleDebug"], androidDir, true);
     if (ok) {
       android = copyIfExists(
@@ -179,10 +208,11 @@ function main() {
     }
   } else {
     log("Android project / Gradle wrapper not found.");
+    versionCode = readVersionCode(gradleFile);
   }
 
   const windows = null;
-  writeManifest(android, windows, pkg.version);
+  writeManifest(android, windows, pkg.version, versionCode);
   log("restoring production web build (baseHref /app/) so public/app is not replaced by the native bundle");
   run("npm", ["run", "build"], frontendRoot, false);
   if (!android && !windows) {

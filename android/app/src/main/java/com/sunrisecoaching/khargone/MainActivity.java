@@ -15,12 +15,22 @@ public class MainActivity extends BridgeActivity {
 
     private SwipeRefreshLayout swipeRefresh;
     private volatile String pageHref = "";
+    private AppUpdateHelper appUpdate;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE);
+        appUpdate = new AppUpdateHelper(this);
         wrapWebView();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (appUpdate != null) {
+            appUpdate.onResume();
+        }
     }
 
     private void wrapWebView() {
@@ -101,6 +111,13 @@ public class MainActivity extends BridgeActivity {
         @JavascriptInterface
         public void setPath(String href) {
             pageHref = href != null ? href : "";
+        }
+
+        @JavascriptInterface
+        public void startUpdateCheck(String manifestUrl) {
+            if (appUpdate != null) {
+                appUpdate.startUpdateCheck(manifestUrl);
+            }
         }
     }
 }
