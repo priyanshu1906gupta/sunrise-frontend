@@ -1378,24 +1378,63 @@ html.platform-android .ff-apk-list {
   display: none;
 }
 
+html.platform-android,
+html.platform-native {
+  overscroll-behavior-y: none;
+}
+
+html.platform-android body,
+html.platform-native body {
+  overscroll-behavior-y: none;
+}
+
 html.platform-android {
-  .ff-header {
-    padding-top: env(safe-area-inset-top, 0);
+  .ff-header,
+  .header.header-sticky,
+  app-default-header.header {
+    padding-top: 0;
+  }
+
+  .ff-header > .container-fluid,
+  .header > .container-fluid {
+    min-height: 3.5rem;
+    align-items: center;
+    flex-wrap: nowrap;
+  }
+
+  .ff-header-cluster {
+    flex-wrap: nowrap;
+    min-width: 0;
   }
 
   .ff-page-body {
     padding-bottom: calc(1.25rem + env(safe-area-inset-bottom, 0));
   }
 
-  .ff-theme-picker {
+  .ff-theme-picker,
+  c-dropdown.ff-theme-picker {
     display: none !important;
   }
 
   .ff-icon-btn,
   .header .nav-link,
-  .header button {
+  .header button:not(.ff-lang__btn) {
     min-width: 2.75rem;
     min-height: 2.75rem;
+  }
+
+  .header .ff-lang,
+  .ff-header .ff-lang {
+    min-width: 8.25rem;
+    height: 2rem;
+    flex-shrink: 0;
+  }
+
+  .header .ff-lang__btn {
+    min-width: 0;
+    min-height: 0;
+    padding: 0.18rem 0.45rem;
+    font-size: 0.72rem;
   }
 
   .body .table tbody tr:hover > * {

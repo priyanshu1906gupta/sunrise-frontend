@@ -102,6 +102,21 @@ import { TPipe } from '../core/t.pipe';
       padding: 0.18rem 0.55rem;
     }
 
+    :host-context(html.platform-android) .ff-lang,
+    :host-context(html.platform-native) .ff-lang {
+      min-width: 8.25rem;
+      height: 2rem;
+      flex-shrink: 0;
+    }
+
+    :host-context(html.platform-android) .ff-lang__btn,
+    :host-context(html.platform-native) .ff-lang__btn {
+      min-width: 0;
+      min-height: 0;
+      font-size: 0.72rem;
+      padding: 0.18rem 0.45rem;
+    }
+
     :host-context(.ff-auth) .ff-lang {
       background: rgba(8, 12, 20, 0.55);
       border-color: rgba(255, 255, 255, 0.35);
