@@ -17,7 +17,7 @@
 @if (error()) { <div class="text-danger mb-2">{{ error() }}</div> }
 @if (list(); as data) {
   @if (!data.items.length) { <app-empty /> } @else {
-    <c-card>
+    <c-card class="ff-desk-table">
     <div class="table-responsive">
       <table cTable hover>
         <thead><tr><th>{{ 'common.name' | t }}</th><th>{{ 'expenses.dueDate' | t }}</th><th>{{ 'expenses.amount' | t }}</th><th>{{ 'expenses.comment' | t }}</th><th></th></tr></thead>
@@ -42,6 +42,26 @@
       </table>
     </div>
     </c-card>
+    <div class="ff-apk-list">
+      @for (m of data.items; track m['id']) {
+        <c-card class="ff-entity-card">
+          <c-card-body>
+            <div class="ff-entity-card__title">{{ m['name'] }}</div>
+            <div class="ff-entity-card__meta">{{ m['dueDate'] | date:'dd MMM yyyy' }}</div>
+            <div class="ff-chip-row mt-2">
+              <span class="ff-chip">{{ m['amount'] | inr }}</span>
+            </div>
+            @if (m['comment']) {
+              <div class="ff-entity-card__meta mt-1">{{ m['comment'] }}</div>
+            }
+            <div class="ff-apk-actions">
+              <button cButton color="primary" size="sm" type="button" (click)="openAdd(m)">{{ 'common.edit' | t }}</button>
+              <button cButton color="danger" variant="outline" size="sm" type="button" (click)="remove($any(m['id']))">{{ 'common.delete' | t }}</button>
+            </div>
+          </c-card-body>
+        </c-card>
+      }
+    </div>
     <app-pager [page]="data.page" [totalPages]="data.totalPages" (changed)="load($event)" />
   }
 }

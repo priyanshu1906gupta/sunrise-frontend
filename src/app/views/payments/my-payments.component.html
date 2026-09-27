@@ -24,7 +24,7 @@
   @if (!payments().length) {
     <app-empty />
   } @else {
-    <c-card>
+    <c-card class="ff-desk-table">
       <div class="table-responsive">
         <table cTable hover>
           <thead>
@@ -48,6 +48,19 @@
         </table>
       </div>
     </c-card>
+    <div class="ff-apk-list">
+      @for (p of paged(); track p.id) {
+        <c-card class="ff-entity-card">
+          <c-card-body>
+            <div class="ff-entity-card__title">{{ p.amount | inr }}</div>
+            <div class="ff-entity-card__meta">{{ p.paymentDate | date:'dd MMM yyyy' }} · {{ p.paymentMode === 'ONLINE' ? ('payments.online' | t) : ('payments.cash' | t) }}</div>
+            <div class="ff-chip-row mt-2">
+              <span class="ff-chip">{{ p.dueAmountAfter | inr }}</span>
+            </div>
+          </c-card-body>
+        </c-card>
+      }
+    </div>
     <app-pager [page]="page()" [totalPages]="totalPages()" (changed)="page.set($event)" />
   }
 }

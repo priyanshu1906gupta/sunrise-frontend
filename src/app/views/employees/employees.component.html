@@ -21,7 +21,7 @@
 
 @if (list(); as data) {
   @if (!data.items.length) { <app-empty /> } @else {
-    <c-card>
+    <c-card class="ff-desk-table">
     <div class="table-responsive">
       <table cTable hover>
         <thead><tr><th>{{ 'common.photo' | t }}</th><th>{{ 'common.name' | t }}</th><th>{{ 'employees.role' | t }}</th><th>{{ 'common.phone' | t }}</th><th></th></tr></thead>
@@ -64,6 +64,37 @@
       </table>
     </div>
     </c-card>
+    <div class="ff-apk-list">
+      @for (m of data.items; track m['id']) {
+        <c-card class="ff-entity-card">
+          <c-card-body>
+            <div class="ff-apk-row">
+              <img [src]="m['photoUrl'] || 'assets/brand/logo.png'" appFallbackSrc class="ff-avatar" (click)="openDetail($any(m['id']))" alt="" />
+              <div class="ff-apk-row__body">
+                <button type="button" class="ff-apk-row ff-entity-card__title p-0" (click)="openDetail($any(m['id']))">{{ m['fullName'] }}</button>
+                <div class="ff-entity-card__meta">{{ m['role'] === 'MANAGER' ? ('employees.roleManager' | t) : m['role'] === 'STAFF' ? ('employees.roleStaff' | t) : ('employees.roleTeacher' | t) }} · {{ m['phone'] }}</div>
+                <div class="ff-apk-actions">
+                  @if (auth.canWrite()) {
+                    @if (m['role'] === 'TEACHER') {
+                      @if (m['status'] === 'INACTIVE') {
+                        <button cButton color="success" size="sm" type="button" (click)="activate($any(m['id']))">{{ 'employees.activate' | t }}</button>
+                      } @else {
+                        <button cButton color="warning" variant="outline" size="sm" type="button" (click)="deactivate($any(m['id']))">{{ 'employees.deactivate' | t }}</button>
+                      }
+                    }
+                    <button cButton color="primary" size="sm" type="button" (click)="openEdit($any(m['id']))">{{ 'common.edit' | t }}</button>
+                    @if (canResetManager(m)) {
+                      <button cButton color="warning" variant="outline" size="sm" type="button" (click)="resetManager($any(m['id']))">{{ 'employees.resetPassword' | t }}</button>
+                    }
+                    <button cButton color="danger" variant="outline" size="sm" type="button" (click)="remove($any(m['id']))">{{ 'common.delete' | t }}</button>
+                  }
+                </div>
+              </div>
+            </div>
+          </c-card-body>
+        </c-card>
+      }
+    </div>
     <app-pager [page]="data.page" [totalPages]="data.totalPages" (changed)="load($event)" />
   }
 }

@@ -3,6 +3,7 @@ import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import {
   ButtonDirective,
+  CardBodyComponent,
   CardComponent,
   FormControlDirective,
   FormDirective,
@@ -23,6 +24,7 @@ import { EmptyComponent } from '../../shared/empty.component';
     DatePipe,
     ReactiveFormsModule,
     ButtonDirective,
+    CardBodyComponent,
     CardComponent,
     FormDirective,
     FormControlDirective,

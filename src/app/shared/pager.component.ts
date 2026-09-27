@@ -7,7 +7,7 @@ import { PageItemDirective, PageLinkDirective, PaginationComponent } from '@core
   imports: [PaginationComponent, PageItemDirective, PageLinkDirective],
   template: `
     @if (totalPages() > 1) {
-      <c-pagination class="mt-3">
+      <c-pagination class="mt-3 ff-pager">
         <li cPageItem [disabled]="page() <= 1">
           <a cPageLink (click)="go(page() - 1)">Prev</a>
         </li>

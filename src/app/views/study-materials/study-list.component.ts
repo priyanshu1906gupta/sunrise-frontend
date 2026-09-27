@@ -1,6 +1,6 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { ButtonDirective, CardComponent, TableDirective } from '@coreui/angular';
+import { ButtonDirective, CardBodyComponent, CardComponent, TableDirective } from '@coreui/angular';
 import { IconDirective } from '@coreui/icons-angular';
 import { ApiService, apiErrorMessage } from '../../core/api.service';
 import { AuthService } from '../../core/auth.service';
@@ -26,7 +26,7 @@ export type StudyRow = {
 @Component({
   selector: 'app-study-list',
   templateUrl: './study-list.component.html',
-  imports: [ButtonDirective, CardComponent, TableDirective, IconDirective, RouterLink, TPipe, EmptyComponent]
+  imports: [ButtonDirective, CardBodyComponent, CardComponent, TableDirective, IconDirective, RouterLink, TPipe, EmptyComponent]
 })
 export class StudyListComponent {
   private readonly api = inject(ApiService);

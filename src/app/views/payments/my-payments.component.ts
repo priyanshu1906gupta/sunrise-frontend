@@ -1,6 +1,6 @@
 import { DatePipe } from '@angular/common';
 import { Component, inject, signal } from '@angular/core';
-import { BadgeComponent, CardComponent, TableDirective } from '@coreui/angular';
+import { BadgeComponent, CardBodyComponent, CardComponent, TableDirective } from '@coreui/angular';
 import { ApiService, apiErrorMessage } from '../../core/api.service';
 import { InrPipe } from '../../core/inr.pipe';
 import { TPipe } from '../../core/t.pipe';
@@ -10,7 +10,7 @@ import { PagerComponent } from '../../shared/pager.component';
 @Component({
   selector: 'app-my-payments',
   templateUrl: './my-payments.component.html',
-  imports: [DatePipe, BadgeComponent, CardComponent, TableDirective, InrPipe, TPipe, EmptyComponent, PagerComponent]
+  imports: [DatePipe, BadgeComponent, CardBodyComponent, CardComponent, TableDirective, InrPipe, TPipe, EmptyComponent, PagerComponent]
 })
 export class MyPaymentsComponent {
   private readonly api = inject(ApiService);

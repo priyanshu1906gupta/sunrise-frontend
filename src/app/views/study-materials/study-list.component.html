@@ -26,7 +26,7 @@
 @if (!filtered().length) {
   <app-empty />
 } @else {
-  <c-card>
+  <c-card class="ff-desk-table">
     <div class="table-responsive">
       <table cTable hover class="mb-0">
         <thead>
@@ -61,4 +61,23 @@
       </table>
     </div>
   </c-card>
+  <div class="ff-apk-list">
+    @for (row of filtered(); track row.id) {
+      <c-card class="ff-entity-card">
+        <c-card-body>
+          <div class="ff-entity-card__title">{{ row.name }}</div>
+          <div class="ff-entity-card__meta">{{ row.courseName }} · {{ row.subjectName }}</div>
+          <div class="ff-chip-row mt-2">
+            <span class="ff-chip">{{ row.kind === 'YOUTUBE' ? ('study.youtube' | t) : ('study.pdf' | t) }}</span>
+          </div>
+          <div class="ff-apk-actions">
+            <a cButton color="primary" size="sm" [routerLink]="viewLink(row.id)">{{ 'study.view' | t }}</a>
+            @if (auth.canAuthorTests()) {
+              <button cButton color="danger" variant="outline" size="sm" type="button" (click)="remove(row.id)">{{ 'common.delete' | t }}</button>
+            }
+          </div>
+        </c-card-body>
+      </c-card>
+    }
+  </div>
 }

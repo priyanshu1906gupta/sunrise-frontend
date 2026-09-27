@@ -33,8 +33,10 @@ export class NativeShellService {
     try {
       const { Capacitor } = await import('@capacitor/core');
       if (!Capacitor.isNativePlatform()) return;
+      document.documentElement.classList.add('platform-native');
       const { environment } = await import('../../environments/environment');
       if (Capacitor.getPlatform() === 'android') {
+        document.documentElement.classList.add('platform-android');
         this.startAndroidUpdateCheck(environment.apiUrl);
       }
       if (environment.pushNotifications === false) return;

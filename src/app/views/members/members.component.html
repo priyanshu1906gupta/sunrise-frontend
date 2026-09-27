@@ -46,7 +46,7 @@
 @if (list(); as data) {
   @if (!data.items.length) { <app-empty /> }
   @else {
-    <c-card>
+    <c-card class="ff-desk-table">
     <div class="table-responsive">
       <table cTable hover>
         <thead>
@@ -116,6 +116,45 @@
       </table>
     </div>
     </c-card>
+    <div class="ff-apk-list">
+      @for (m of data.items; track m['id']) {
+        <c-card class="ff-entity-card">
+          <c-card-body>
+            <div class="ff-apk-row">
+              <img [src]="m['photoUrl'] || 'assets/brand/logo.png'" appFallbackSrc class="ff-avatar" (click)="openDetail($any(m['id']))" alt="" />
+              <div class="ff-apk-row__body">
+                <button type="button" class="ff-apk-row ff-entity-card__title p-0" (click)="openDetail($any(m['id']))">{{ m['fullName'] }}</button>
+                <div class="ff-entity-card__meta">{{ courseNames($any(m)) }} · {{ m['phone'] }}</div>
+                @if (auth.canWrite()) {
+                  <div class="ff-chip-row mt-2">
+                    <span class="ff-chip">{{ m['monthEndDate'] | date:'dd MMM yyyy' }}</span>
+                    <c-badge [color]="m['subscriptionStatus'] === 'ACTIVE' ? 'success' : 'danger'">
+                      {{ m['subscriptionStatus'] === 'ACTIVE' ? ('common.active' | t) : ('members.expired' | t) }}
+                    </c-badge>
+                    <c-badge [color]="m['paymentStatus'] === 'PAID' ? 'success' : 'danger'">{{ m['paymentStatus'] }}</c-badge>
+                  </div>
+                }
+                <div class="ff-apk-actions">
+                  @if (auth.canWrite()) {
+                    @if (isDeactiveList) {
+                      @if (m['deactivated']) {
+                        <button cButton color="success" size="sm" type="button" (click)="restore($any(m['id']))">{{ 'common.renew' | t }}</button>
+                      } @else {
+                        <button cButton color="success" size="sm" type="button" (click)="activate($any(m['id']))">{{ 'members.activate' | t }}</button>
+                      }
+                    } @else {
+                      <button cButton color="warning" variant="outline" size="sm" type="button" (click)="deactivate($any(m['id']))">{{ 'members.deactivate' | t }}</button>
+                      <button cButton color="primary" size="sm" type="button" (click)="openEdit($any(m['id']))">{{ 'common.edit' | t }}</button>
+                      <button cButton color="danger" variant="outline" size="sm" type="button" (click)="remove($any(m['id']))">{{ 'common.delete' | t }}</button>
+                    }
+                  }
+                </div>
+              </div>
+            </div>
+          </c-card-body>
+        </c-card>
+      }
+    </div>
     <app-pager [page]="data.page" [totalPages]="data.totalPages" (changed)="load($event)" />
   }
 }

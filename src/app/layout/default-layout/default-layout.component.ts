@@ -27,17 +27,29 @@ function navIconName(item: INavData): string {
   return raw.replace(/-([a-z])/g, (_m: string, c: string) => c.toUpperCase());
 }
 
-function flattenNav(items: INavData[], prefix = ''): { name: string; url: string; icon: string }[] {
-  const out: { name: string; url: string; icon: string }[] = [];
+export type GridNavCell =
+  | { kind: 'tile'; name: string; url: string; icon: string }
+  | { kind: 'divider'; name: string; url?: string };
+
+function flattenNav(items: INavData[]): GridNavCell[] {
+  const out: GridNavCell[] = [];
   for (const item of items) {
     if (item.title) continue;
-    const label = prefix && item.name ? `${prefix} · ${item.name}` : item.name || '';
     if (item.children?.length) {
-      out.push(...flattenNav(item.children, item.name || prefix));
+      out.push({
+        kind: 'divider',
+        name: item.name || '',
+        url: typeof item.url === 'string' ? item.url : undefined
+      });
+      for (const child of item.children) {
+        if (typeof child.url === 'string' && child.url) {
+          out.push({ kind: 'tile', name: child.name || '', url: child.url, icon: navIconName(child) });
+        }
+      }
       continue;
     }
     if (typeof item.url === 'string' && item.url) {
-      out.push({ name: label, url: item.url, icon: navIconName(item) });
+      out.push({ kind: 'tile', name: item.name || '', url: item.url, icon: navIconName(item) });
     }
   }
   return out;

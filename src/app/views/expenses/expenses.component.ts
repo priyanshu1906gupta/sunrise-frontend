@@ -3,7 +3,7 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import {
-  ButtonDirective, CardComponent, FormControlDirective, FormDirective, FormLabelDirective,
+  ButtonDirective, CardBodyComponent, CardComponent, FormControlDirective, FormDirective, FormLabelDirective,
   ModalBodyComponent, ModalComponent, ModalFooterComponent, ModalHeaderComponent, ModalTitleDirective, TableDirective
 } from '@coreui/angular';
 import { ApiService, apiErrorMessage } from '../../core/api.service';
@@ -25,7 +25,7 @@ import { PagerComponent } from '../../shared/pager.component';
   selector: 'app-expenses',
   templateUrl: './expenses.component.html',
   imports: [
-    DatePipe, ReactiveFormsModule, ButtonDirective, CardComponent, FormDirective, FormControlDirective,
+    DatePipe, ReactiveFormsModule, ButtonDirective, CardBodyComponent, CardComponent, FormDirective, FormControlDirective,
     FormLabelDirective, ModalComponent, ModalHeaderComponent, ModalTitleDirective, ModalBodyComponent, ModalFooterComponent,
     TableDirective, InrPipe, TPipe, EmptyComponent, PagerComponent, IconDirective, ModalCloseComponent
   ]

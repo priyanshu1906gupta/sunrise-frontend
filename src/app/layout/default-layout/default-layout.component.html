@@ -21,13 +21,23 @@
     @for (lang of [i18n.lang()]; track lang) {
       <c-sidebar-nav class="ff-sidebar-list" [navItems]="navItems()" dropdownMode="none" compact />
       <nav class="ff-nav-grid" aria-label="App menu">
-        @for (item of gridNavItems(); track item.url + item.name) {
-          <a class="ff-nav-tile" [routerLink]="item.url" (click)="closeMobileSidebar($event)">
-            <span class="ff-nav-tile__icon">
-              <svg cIcon [name]="item.icon" size="xl"></svg>
-            </span>
-            <span class="ff-nav-tile__label">{{ item.name }}</span>
-          </a>
+        @for (item of gridNavItems(); track $index) {
+          @if (item.kind === 'divider') {
+            <div class="ff-nav-divider" role="separator">
+              @if (item.url) {
+                <a class="ff-nav-divider__label" [routerLink]="item.url" (click)="closeMobileSidebar($event)">{{ item.name }}</a>
+              } @else {
+                <span class="ff-nav-divider__label">{{ item.name }}</span>
+              }
+            </div>
+          } @else {
+            <a class="ff-nav-tile" [routerLink]="item.url" (click)="closeMobileSidebar($event)">
+              <span class="ff-nav-tile__icon">
+                <svg cIcon [name]="item.icon" size="xl"></svg>
+              </span>
+              <span class="ff-nav-tile__label">{{ item.name }}</span>
+            </a>
+          }
         }
       </nav>
     }

@@ -28,7 +28,7 @@
 @if (!list().length) {
   <app-empty />
 } @else {
-  <c-card>
+  <c-card class="ff-desk-table">
     <div class="table-responsive">
       <table cTable hover>
         <thead>
@@ -50,4 +50,14 @@
       </table>
     </div>
   </c-card>
+  <div class="ff-apk-list">
+    @for (row of list(); track row.id) {
+      <c-card class="ff-entity-card">
+        <c-card-body>
+          <div class="ff-entity-card__title">{{ row.fromDate | date:'dd MMM yyyy' }} – {{ row.toDate | date:'dd MMM yyyy' }}</div>
+          <div class="ff-entity-card__meta mt-1">{{ row.reason }}</div>
+        </c-card-body>
+      </c-card>
+    }
+  </div>
 }

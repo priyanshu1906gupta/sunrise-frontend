@@ -17,7 +17,7 @@
 
 @if (list(); as data) {
   @if (!data.items.length) { <app-empty /> } @else {
-    <c-card>
+    <c-card class="ff-desk-table">
     <div class="table-responsive">
       <table cTable hover>
         <thead><tr><th>{{ 'common.photo' | t }}</th><th>{{ 'common.name' | t }}</th><th>{{ 'members.monthEnd' | t }}</th><th>{{ 'payments.days' | t }}</th><th>{{ 'payments.due' | t }}</th><th></th></tr></thead>
@@ -36,6 +36,27 @@
       </table>
     </div>
     </c-card>
+    <div class="ff-apk-list">
+      @for (m of data.items; track m['id']) {
+        <c-card class="ff-entity-card">
+          <c-card-body>
+            <div class="ff-apk-row">
+              <img [src]="m['photoUrl'] || 'assets/brand/logo.png'" appFallbackSrc class="ff-avatar" alt="" />
+              <div class="ff-apk-row__body">
+                <div class="ff-entity-card__title">{{ m['fullName'] }}</div>
+                <div class="ff-entity-card__meta">{{ m['monthEndDate'] | date:'dd MMM yyyy' }} · {{ m['daysLeft'] }} {{ 'payments.days' | t }}</div>
+                <div class="ff-chip-row mt-2">
+                  <span class="ff-chip">{{ m['dueAmount'] | inr }}</span>
+                </div>
+                <div class="ff-apk-actions">
+                  <button cButton color="primary" type="button" (click)="openPay(m)" [disabled]="!auth.canWrite()">{{ 'payments.add' | t }}</button>
+                </div>
+              </div>
+            </div>
+          </c-card-body>
+        </c-card>
+      }
+    </div>
     <app-pager [page]="data.page" [totalPages]="data.totalPages" (changed)="load($event)" />
   }
 }

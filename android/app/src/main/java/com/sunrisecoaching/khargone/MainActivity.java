@@ -12,9 +12,28 @@ import java.util.regex.Pattern;
 
 public class MainActivity extends BridgeActivity {
     private static final Pattern LIVE_ROOM = Pattern.compile("(?i).*(?:#/|/)live-classes/[^/#?]+");
+    private static final String PATH_WATCH_JS =
+        "(function(){function n(){if(window.SunriseShell)SunriseShell.setPath(location.href)}"
+            + "window.addEventListener('hashchange',n);window.addEventListener('popstate',n);n();})()";
+    private static final String SCROLL_WATCH_JS =
+        "(function(){if(window.__sunriseScrollWatch)return;window.__sunriseScrollWatch=1;"
+            + "function pageAtTop(){var y=window.pageYOffset||document.documentElement.scrollTop||document.body.scrollTop||0;"
+            + "if(y>1)return false;"
+            + "var sels=['.ff-page-body','.wrapper','.sidebar.show','.ng-scroll-viewport','.os-viewport',"
+            + "'[data-overlayscrollbars-viewport]','.live-chat-list','main'];"
+            + "for(var i=0;i<sels.length;i++){var nodes=document.querySelectorAll(sels[i]);"
+            + "for(var j=0;j<nodes.length;j++){if(nodes[j].scrollTop>1)return false;}}"
+            + "return true;}"
+            + "function report(){if(window.SunriseShell&&SunriseShell.setScroll)SunriseShell.setScroll(!pageAtTop());}"
+            + "window.addEventListener('scroll',report,{passive:true});"
+            + "document.addEventListener('scroll',report,{passive:true,capture:true});"
+            + "window.addEventListener('touchmove',report,{passive:true});"
+            + "window.addEventListener('hashchange',report);"
+            + "setInterval(report,250);report();})()";
 
     private SwipeRefreshLayout swipeRefresh;
     private volatile String pageHref = "";
+    private volatile boolean pageCanScrollUp = false;
     private AppUpdateHelper appUpdate;
 
     @Override
@@ -63,11 +82,7 @@ public class MainActivity extends BridgeActivity {
             new WebViewListener() {
                 @Override
                 public void onPageLoaded(WebView view) {
-                    view.evaluateJavascript(
-                        "(function(){function n(){if(window.SunriseShell)SunriseShell.setPath(location.href)}"
-                            + "window.addEventListener('hashchange',n);window.addEventListener('popstate',n);n();})()",
-                        null
-                    );
+                    view.evaluateJavascript(PATH_WATCH_JS + SCROLL_WATCH_JS, null);
                 }
             }
         );
@@ -78,7 +93,7 @@ public class MainActivity extends BridgeActivity {
                     "(function(){return location.href})()",
                     value -> {
                         String href = unquoteJs(value);
-                        if (isLiveRoom(href) || isLiveRoom(pageHref) || isLiveRoom(webView.getUrl())) {
+                        if (pageCanScrollUp || isLiveRoom(href) || isLiveRoom(pageHref) || isLiveRoom(webView.getUrl())) {
                             swipeRefresh.setRefreshing(false);
                             return;
                         }
@@ -89,7 +104,7 @@ public class MainActivity extends BridgeActivity {
             }
         );
         swipeRefresh.setOnChildScrollUpCallback(
-            (parentView, child) -> isLiveRoom(pageHref) || isLiveRoom(webView.getUrl())
+            (parentView, child) -> pageCanScrollUp || isLiveRoom(pageHref) || isLiveRoom(webView.getUrl())
         );
     }
 
@@ -111,6 +126,11 @@ public class MainActivity extends BridgeActivity {
         @JavascriptInterface
         public void setPath(String href) {
             pageHref = href != null ? href : "";
+        }
+
+        @JavascriptInterface
+        public void setScroll(boolean canScrollUp) {
+            pageCanScrollUp = canScrollUp;
         }
 
         @JavascriptInterface
